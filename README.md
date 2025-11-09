@@ -1,98 +1,81 @@
-# Resilient Housing Bayes
+# 🪐 Resilient Housing Bayes
 
-Bayesian simulation framework exploring how housing systems respond to stochastic climate events.  
-Includes synthetic data generation, probabilistic fragility modeling, and estimation of downtime and reconstruction cost for resilience assessment.
-
----
-
-## 1. Purpose
-
-This repository is a learning and research environment to:
-- Practice Bayesian modeling with realistic yet synthetic data.
-- Explore resilience concepts in the built environment.
-- Demonstrate open, reproducible computational workflows for architectural and urban systems.
-
-No proprietary data or job-related materials are included.
+**Bayesian simulation framework for modeling housing resilience and urban-scale risk.**  
+Part of the **[Habnetic](https://habnetic.org)** open research initiative.
 
 ---
 
-## 2. Project structure
+## 🧭 Overview
+**Resilient Housing Bayes** is Habnetic’s foundational research module exploring how buildings and housing systems behave under uncertainty.  
+It integrates **Bayesian inference**, **synthetic data generation**, and **stochastic hazard simulation** to estimate fragility, downtime, and recovery costs at building and urban scales.
 
+The goal is to provide transparent, reproducible probabilistic models that can inform both **resilience policy** and **adaptive design strategies** — for habitats on Earth and, eventually, beyond it.
+
+---
+
+## ⚙️ Features
+- 🧩 **Probabilistic modeling** using PyMC and ArviZ  
+- 🧠 **Synthetic dataset generation** for resilience testing  
+- 📈 **Fragility curve estimation** for multiple hazard types  
+- 🌀 **Monte Carlo simulation** for reconstruction cost and downtime  
+- 🧱 **Modular, extensible structure** for urban-scale adaptation  
+
+---
+
+## 🧩 Repository Structure
 ```
 resilient-housing-bayes/
 │
-├── data/
-│   └── synthetic/                  # generated storm and building datasets
-│
-├── notebooks/
-│   ├── 01_simulate_storms.ipynb    # Monte Carlo climate events
-│   ├── 02_fragility_and_failure.ipynb
-│   ├── 03_bayesian_downtime_model.ipynb
-│   └── 04_visualization_and_reporting.ipynb
-│
-├── reports/
-│   └── 2025-10-11_project-plan.md
-│
-├── requirements.txt
-├── LICENSE
-└── README.md
+├── data/              → synthetic and example datasets
+├── notebooks/         → research notebooks and experiments
+├── src/               → reusable model components
+├── docs/              → technical notes and reports
+└── LICENSE            → MIT License (Habnetic)
 ```
 
 ---
 
-## 3. Methods (conceptual)
+## 📦 Dependencies
+- Python 3.11+
+- [PyMC](https://www.pymc.io/)
+- [ArviZ](https://python.arviz.org/)
+- NumPy, pandas, geopandas
+- Matplotlib or Plotly for visualization
 
-1. **Monte Carlo storm generation** — random sampling of event intensity, duration, and frequency.  
-2. **Fragility modeling** — probability of component failure given event intensity.  
-3. **Bayesian inference** — hierarchical model estimating building downtime and reconstruction cost with uncertainty bounds.  
-4. **Posterior analysis** — credible intervals, expected loss, and sensitivity to priors.
-
----
-
-## 4. Learning goals
-
-- Understand hierarchical Bayesian modeling.  
-- Build and evaluate synthetic datasets for uncertainty analysis.  
-- Communicate probabilistic results clearly through plots and summaries.  
-
----
-
-## 5. Dependencies
-
-Install requirements (Python ≥3.10):
+Install the environment:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Typical stack:
-- numpy, pandas, matplotlib, arviz
-- pymc or stan
-- jupyter or colab
+---
+
+## 🧠 Roadmap
+**Phase I — Synthetic Modeling**  
+Develop Bayesian fragility models for simplified housing typologies.  
+
+**Phase II — Open Data Integration**  
+Incorporate open hazard and climate data from NASA, ESA, and Copernicus.  
+
+**Phase III — Urban-Scale Simulation**  
+Extend probabilistic inference to city-scale networks and interdependencies.
 
 ---
 
-## 6. Usage
+## 🧪 Citation & Acknowledgement
+All code and research materials are released under the **MIT License**.  
+If you use this work, please cite:
 
-Clone the repository and open the notebooks sequentially:
-
-```bash
-git clone https://github.com/mikel-knwoledge/resilient-housing-bayes.git
-cd resilient-housing-bayes/notebooks
-jupyter notebook
-```
-
-Each notebook is standalone and documented.
+> **Habnetic (2025)**. *Resilient Housing Bayes: Bayesian Modeling Framework for Housing Resilience.* Habnetic Open Research.  
+> [https://github.com/Habnetic/resilient-housing-bayes](https://github.com/Habnetic/resilient-housing-bayes)
 
 ---
 
-## 7. License
-
-MIT License — open for learning, teaching, and research reuse.
+## 🌍 Links
+- 🌐 [Habnetic Website](https://habnetic.org)
+- 🧭 [Habnetic Organization](https://github.com/Habnetic)
+- 📫 Contact: [info@habnetic.org](mailto:info@habnetic.org)
 
 ---
 
-## 8. Author
-
-Mikel — Architect and digital strategist  
-Focused on Bayesian reasoning for design resilience and computational learning.
+© 2025 Habnetic — Open Research for Resilient Futures
