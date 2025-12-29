@@ -23,6 +23,7 @@ The goal is to provide transparent, reproducible probabilistic models that can i
 ---
 
 ## 🧩 Repository Structure
+
 ```
 resilient-housing-bayes/
 │   .gitignore
@@ -48,17 +49,18 @@ resilient-housing-bayes/
 - [PyMC](https://www.pymc.io/)
 - [ArviZ](https://python.arviz.org/)
 - NumPy, pandas, geopandas
-- Matplotlib or Plotly for visualization
+- Matplotlib (default), Plotly optional
 
 Install the environment:
 
 ```bash
 pip install -r requirements.txt
+
 ```
 
 ---
 
-## 🧠 Roadmap
+## 🧠 Roadmap (module scope)
 **Phase I — Synthetic Modeling**  
 Develop Bayesian fragility models for simplified housing typologies.  
 
@@ -74,8 +76,9 @@ Extend probabilistic inference to city-scale networks and interdependencies.
 All code and research materials are released under the **MIT License**.  
 If you use this work, please cite:
 
-> **Habnetic (2025)**. *Resilient Housing Bayes: Bayesian Modeling Framework for Housing Resilience.* Habnetic Open Research.  
-> [https://github.com/Habnetic/resilient-housing-bayes](https://github.com/Habnetic/resilient-housing-bayes)
+> **Habnetic (2026)**. *Resilient Housing Bayes: Bayesian Modeling Framework for Housing Resilience.*  
+> Habnetic Open Research Lab.  
+> https://github.com/Habnetic/resilient-housing-bayes
 
 ---
 
@@ -93,4 +96,4 @@ If you use this work, please cite:
 
 ---
 
-© 2025 Habnetic — Open Research for Resilient Futures
+© 2026 Habnetic — Open Research for Resilient Futures
