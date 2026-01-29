@@ -13,6 +13,22 @@ The goal is to provide transparent, reproducible probabilistic models that can i
 
 ---
 
+## 🔗 Position in the Habnetic ecosystem
+
+This repository **does not define exposure variables or datasets**.
+
+Instead, it:
+- **consumes canonical exposure priors** defined in `Habnetic/docs`
+- **reads derived datasets** generated in `Habnetic/data`
+- **implements Bayesian models** using those definitions
+
+Separation of concerns:
+- **Habnetic/docs** → conceptual definitions, assumptions, interpretation constraints  
+- **Habnetic/data** → raw, normalized, and derived datasets  
+- **resilient-housing-bayes** → probabilistic models, inference, validation
+
+---
+
 ## ⚙️ Features
 - 🧩 **Probabilistic modeling** using PyMC and ArviZ  
 - 🧠 **Synthetic dataset generation** for resilience testing  
@@ -41,6 +57,14 @@ resilient-housing-bayes/
 │
 └───src/
 ```
+Notebooks follow a strict progression:
+1. **Data exploration** (understanding priors and distributions)
+2. **Synthetic generation** (prior predictive reasoning)
+3. **Model definition** (generative structure)
+4. **Inference and validation**
+5. **Visualization and communication**
+
+Skipping steps is discouraged.
 
 ---
 
@@ -69,6 +93,20 @@ Incorporate open hazard and climate data from NASA, ESA, and Copernicus.
 
 **Phase III — Urban-Scale Simulation**  
 Extend probabilistic inference to city-scale networks and interdependencies.
+
+---
+
+## 📚 Conceptual references
+
+All exposure variables used in this repository follow **canonical definitions**
+maintained in the Habnetic documentation repository.
+
+Current references:
+- **RTM — Water Exposure Prior (v0)**  
+  https://github.com/Habnetic/docs/blob/main/references/exposure/rtm_water_exposure_v0.md
+
+No exposure variable is defined locally in this repository.
+Any change in exposure semantics must occur upstream in `Habnetic/docs`.
 
 ---
 
