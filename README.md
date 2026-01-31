@@ -66,6 +66,8 @@ Notebooks follow a strict progression:
 
 Skipping steps is discouraged.
 
+At present, the repository focuses on validating exposure inputs and model structure; inference results are exploratory and subject to change.
+
 ---
 
 ## 📦 Dependencies
