@@ -1,0 +1,39 @@
+{
+  "schema_version": "0.1.0",
+  "dataset": "C:/Users/C.Price/Habnetic/data/processed/RTM/priors/building_water_proximity.parquet",
+  "id_column": "bldg_id",
+  "eps": 1e-09,
+  "features": [
+    "x_d",
+    "x_250",
+    "x_500",
+    "x_1000"
+  ],
+  "transforms": {
+    "x_d": "-log(dist_to_water_m + 1.0)",
+    "x_250": "log(water_len_density_250m + eps)",
+    "x_500": "log(water_len_density_500m + eps)",
+    "x_1000": "log(water_len_density_1000m + eps)"
+  },
+  "standardization": {
+    "mean": {
+      "x_d": -5.2312547520652934,
+      "x_250": -12.28463665463985,
+      "x_500": -9.196673173644532,
+      "x_1000": -7.714804193477198
+    },
+    "std": {
+      "x_d": 0.9664176208211556,
+      "x_250": 6.651425205593137,
+      "x_500": 4.8312063681265,
+      "x_1000": 2.4588379774203255
+    },
+    "z_definition": "(x - mean) / std"
+  },
+  "E_hat_definition": "mean(z_d, z_250, z_500, z_1000)",
+  "interpretation_constraints": [
+    "E_hat is a deterministic exposure proxy, not a hazard model.",
+    "No flood probability or risk is implied.",
+    "Use for relative ranking / clustering until hazard intensity + outcomes exist."
+  ]
+}
