@@ -1,0 +1,18 @@
+{
+  "phase": "RTM Phase 0",
+  "purpose": "Structural validation of Exposure → Hazard → Outcome inference",
+  "inference_method": "ADVI",
+  "library": "PyMC",
+  "random_seed": 42,
+  "subsample_size": 3000,
+  "variational_steps": 8000,
+  "posterior_draws": 500,
+  "chains": 1,
+  "hazard_definition": "H_pluvial_v0 (constant = 1.0)",
+  "outcome_definition": "Y_damage_v0 (synthetic Bernoulli)",
+  "notes": [
+    "ADVI used intentionally for speed and structural validation.",
+    "Single-chain variational posterior; R-hat not applicable.",
+    "Results are not calibrated to real-world damage data."
+  ]
+}

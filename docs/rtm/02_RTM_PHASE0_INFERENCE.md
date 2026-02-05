@@ -140,6 +140,64 @@ to:
 Real data enters **only after** the inference machinery is proven to work.
 
 ---
+## 7a) Inference pragmatics (Phase 0)
+
+### Why subsampling was used
+
+Inference in Phase 0 was performed on a random subsample of buildings
+(`n = 3,000`) rather than the full RTM population.
+
+This choice was intentional and justified because:
+
+- the outcome variable is synthetic
+- the hazard signal is constant (no spatial variation)
+- the goal of Phase 0 is structural validation, not parameter precision
+- Bayesian inference cost scales linearly with the number of observations
+
+Subsampling preserves the qualitative structure of the posterior
+(coefficient sign, identifiability, uncertainty shape) while avoiding
+unnecessary computational expense.
+
+Full-population inference is deferred until real hazard intensity
+and real outcomes are introduced.
+
+---
+
+### Why ADVI is acceptable in this phase
+
+Automatic Differentiation Variational Inference (ADVI) was used instead of
+full MCMC sampling for Phase 0.
+
+This is acceptable because:
+
+- the model is low-dimensional and well-identified
+- the outcome is synthetic and generated from a simple data-generating process
+- the purpose is to validate pipeline wiring, not asymptotic accuracy
+- ADVI provides a fast, stable approximation sufficient to confirm model behavior
+
+Standard MCMC diagnostics (e.g. R-hat) are not applicable to ADVI and were
+therefore not used as acceptance criteria in this phase.
+
+Full NUTS-based inference will be used in later phases once real data and
+higher epistemic stakes are present.
+
+---
+
+### What would invalidate these results
+
+The Phase 0 inference results should be considered invalid if any of the
+following occur:
+
+- exposure definition (`E_hat`) changes after Phase 0 is frozen
+- hazard signal is replaced with real intensity data without re-running inference
+- outcome variable is interpreted as real damage or risk
+- posterior summaries are used for decision-making or policy claims
+- inference settings are changed without updating recorded artifacts
+
+Phase 0 results are structural, not empirical.
+Their validity ends once any proxy is replaced by real data.
+
+---
 
 ## 8) Exit condition (Phase 0)
 
