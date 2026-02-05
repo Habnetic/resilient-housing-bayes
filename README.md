@@ -29,6 +29,20 @@ Separation of concerns:
 
 ---
 
+## 🧑‍🔬 Project stewardship
+
+This repository is initiated and currently maintained by **Mikel Martinez Mugica**  
+as part of the **Habnetic** open research initiative.
+
+The project is released under an open-source license (MIT) and welcomes discussion,
+feedback, and contributions.  
+Overall direction, conceptual coherence, and final integration decisions currently
+rest with the maintainer.
+
+This may evolve as Habnetic grows into a broader collaborative structure.
+
+---
+
 ## ⚙️ Features
 - 🧩 **Probabilistic modeling** using PyMC and ArviZ  
 - 🧠 **Synthetic dataset generation** for resilience testing  
