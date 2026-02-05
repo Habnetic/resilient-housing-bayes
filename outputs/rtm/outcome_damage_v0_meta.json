@@ -1,0 +1,17 @@
+{
+  "schema_version": "0.1.0",
+  "outcome": "Y_damage_v0",
+  "type": "synthetic",
+  "definition": "Bernoulli with p = sigmoid(alpha + beta*E_hat + gamma*H_pluvial_v0)",
+  "params": {
+    "alpha": -2.0,
+    "beta": 1.0,
+    "gamma": 0.0,
+    "seed": 42
+  },
+  "constraints": [
+    "Synthetic placeholder outcome for pipeline wiring.",
+    "Not calibrated to observed damages.",
+    "Do not interpret as real flood damage probability."
+  ]
+}
