@@ -1,0 +1,24 @@
+{
+  "hazard": {
+    "name": "H_pluvial_v1",
+    "metric": "mean_annual_max_1h_1991_2020",
+    "units": "mm",
+    "stats": {
+      "n": 221324,
+      "min": 25.408161163330078,
+      "p50": 25.643714904785156,
+      "p95": 26.013592815399168,
+      "max": 26.504924774169922,
+      "mean": 25.668643700884974,
+      "std": 0.19523953639485467
+    }
+  },
+  "join": {
+    "rows": 221324,
+    "corr_Ehat_H": 0.09079005368048573
+  },
+  "inputs": {
+    "E_hat_path": "C:/Users/C.Price/Habnetic/resilient-housing-bayes/outputs/rtm/water_exposure_Ehat_v0.parquet",
+    "hazard_loader": "src.rtm.io_hazard.load_rtm_pluvial_v1_buildings"
+  }
+}
