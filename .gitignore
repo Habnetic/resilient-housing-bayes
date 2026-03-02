@@ -207,9 +207,10 @@ marimo/_lsp/
 __marimo__/
 
 # outputs 1b
-
-
 outputs/
 runs/
 *.nc
 *.png
+
+# notebooks/pytensor_cache
+notebooks/pytensor_cache/
