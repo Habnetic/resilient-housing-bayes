@@ -5,6 +5,25 @@
 
 ---
 
+## Current status update
+
+Completed:
+- Baseline run (σ = 0.00)
+- Hazard perturbation runs at σ = 0.10, 0.20, 0.30
+- Posterior re-inference and decision metric recomputation
+- Borderline share comparison
+- Interpretation memo and phase synthesis
+
+Main result:
+Decision instability remains confined to a narrow boundary (~1.5–1.7% of assets)
+under moderate hazard perturbation.
+
+Pending:
+- add σ = 0.05
+- save scenario outputs systematically
+- generate comparison figures
+- freeze reference baseline bundle
+
 ## 1. Goal
 
 Phase 2 is not about making the model more impressive. It is about testing whether the main empirical claim from Phase 1 survives controlled perturbation.
