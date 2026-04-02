@@ -9,20 +9,27 @@
 
 Completed:
 - Baseline run (σ = 0.00)
-- Hazard perturbation runs at σ = 0.10, 0.20, 0.30
+- Hazard perturbation runs at σ = 0.05, 0.10, 0.20, 0.30
 - Posterior re-inference and decision metric recomputation
-- Borderline share comparison
+- Borderline share comparison across all tested noise levels
+- Aggregate summary table and comparison figures
+- Scenario-specific outputs saved (`summary.json`, `idata.nc`, `asset_metrics.parquet`)
+- Lightweight baseline reference bundle
 - Interpretation memo and phase synthesis
 
 Main result:
-Decision instability remains confined to a narrow boundary (~1.5–1.7% of assets)
-under moderate hazard perturbation.
+Decision instability remains confined to a narrow boundary under moderate hazard perturbation, with borderline share varying between approximately 1.3% and 1.7% of assets across tested noise levels.
 
-Pending:
-- add σ = 0.05
-- save scenario outputs systematically
-- generate comparison figures
-- freeze reference baseline bundle
+Interpretive note:
+A small perturbation (σ = 0.05) slightly reduces the borderline share relative to baseline, suggesting that minimal noise may resolve near-threshold ties rather than immediately widen the unstable region. At higher perturbation levels, instability increases modestly and then saturates.
+
+Status:
+Phase 2 complete — hazard robustness validated.
+
+Optional refinements:
+- add one comparison metric (e.g. top-k overlap with baseline)
+- add ECDF comparison figure if needed for presentation or appendix
+- refactor notebook logic into a reusable experiment runner only if this becomes useful for later phases
 
 ## 1. Goal
 
@@ -383,45 +390,31 @@ One page:
 
 ---
 
-## 14. Recommended immediate execution order
+## 14. Closure note
 
-1. Freeze baseline outputs
-2. Implement hazard perturbation utility
-3. Run one pilot scenario at `sigma = 0.10`
-4. Check runtime, diagnostics, and metric outputs
-5. Expand to full sigma grid
-6. Generate comparison figures
-7. Write interpretation memo
+Phase 2 has been completed as a notebook-centered experiment with saved scenario outputs and aggregate summaries.
 
-This avoids the classic academic hobby of building an elaborate framework before verifying that the first test even works.
+The scientific objective of this phase has been achieved:
+- the narrow-boundary instability result survives controlled hazard perturbation
+- instability remains localised rather than spreading system-wide
+- the observed decision boundary appears to be a structural property of the inference and ranking mechanism
 
----
-
-## 15. What success looks like
-
-This Phase 2 step is successful if, by the end, you can state one of the following with evidence:
-
-### Outcome A
-The narrow-boundary instability result remains robust under plausible hazard perturbation.
-
-### Outcome B
-The result weakens under perturbation, indicating that hazard representation dominates ranking stability.
-
-Either outcome is useful. The only useless outcome is a notebook full of half-finished cells and vague optimism.
+Further work should now focus on the next research question rather than extending Phase 2 infrastructure.
 
 ---
 
-## Assumptions made
-- Phase 1 baseline outputs are available and can be reused as reference
-- hazard is currently treated as a deterministic standardised proxy
-- the first Phase 2 step should minimise structural changes
-- computational budget is limited, so experiments should stay close to the existing baseline
+## 15. Outcome
 
-## How to validate
-- confirm that one perturbed scenario reproduces the baseline workflow end-to-end
-- verify that metrics are computed identically across scenarios
-- inspect convergence and posterior predictive checks before interpreting ranking changes
+Outcome A was observed.
+
+The narrow-boundary instability result remains robust under plausible hazard perturbation. Across σ = 0.00 to 0.30, the borderline share remains small and stable, indicating that prioritisation sensitivity is concentrated in a narrow subset of assets rather than diffusing across the ranked population.
+
+This supports the interpretation that the observed decision boundary is not an artefact of deterministic hazard specification, but a structural property of the model and data.ng ranking changes
 - ensure outputs are saved reproducibly with scenario metadata
 
 ## Next small step
-Implement `perturb_hazard()` and run a single pilot experiment at `sigma = 0.10`.
+
+Transition to Phase 3 planning:
+- define the cross-city transfer setup
+- confirm which components remain fixed across cities
+- identify the minimum transferable data bundle for the next city case study
