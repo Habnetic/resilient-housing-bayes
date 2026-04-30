@@ -1,4 +1,5 @@
 from __future__ import annotations
+from rhb.synthetic_outcomes import add_synthetic_damage_outcome
 
 import argparse
 import json
@@ -141,6 +142,18 @@ def main() -> None:
     df_target["H_pluvial_v1_rel"] = df_target["H_pluvial_v1_mm"] / ref_hazard_median
     df_target["H_pluvial_v1_logrel"] = np.log(df_target["H_pluvial_v1_rel"])
 
+    df_target = add_synthetic_damage_outcome(
+        df_target,
+        exposure_col="E_hat_v0",
+        hazard_col="H_pluvial_v1_logrel",
+        output_col="Y_damage",
+        probability_col="p_damage_true",
+        alpha=-3.0,
+        beta_e=1.0,
+        beta_h=1.0,
+        seed=20260430,
+    )
+
     # support diagnostics
     validate_required_columns(df_ref, SUPPORT_CHECK_COLS)
     validate_required_columns(df_target, SUPPORT_CHECK_COLS)
@@ -187,6 +200,12 @@ def main() -> None:
         "output_file": str(transformed_path),
         "support_diagnostics_json": str(diagnostics_json_path),
         "support_diagnostics_csv": str(diagnostics_csv_path),
+        "synthetic_outcome_col": "Y_damage",
+        "synthetic_probability_col": "p_damage_true",
+        "synthetic_outcome_alpha": -3.0,
+        "synthetic_outcome_beta_e": 1.0,
+        "synthetic_outcome_beta_h": 1.0,
+        "synthetic_outcome_seed": 20260430,
     }
     save_run_metadata(metadata_path, metadata)
 
