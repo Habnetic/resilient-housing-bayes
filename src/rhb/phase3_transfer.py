@@ -41,6 +41,7 @@ SUPPORT_CHECK_COLS = [
     "H_pluvial_v1_mm",
 ]
 
+
 def load_city_features(city_code: str, data_root: Path) -> pd.DataFrame:
     """
     Load pre-built Phase 3 asset table for one city.
