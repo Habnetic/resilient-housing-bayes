@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-
+import numpy as np
 import pandas as pd
 
 from rhb.transfer_scaling import (
@@ -26,6 +26,12 @@ EXPOSURE_RAW_COLS = [
     "water_len_density_500m",
     "water_len_density_1000m",
 ]
+
+HAZARD_RAW_COLS = [
+    "H_pluvial_v1_mm",
+]
+
+SCALER_COLS = EXPOSURE_RAW_COLS + HAZARD_RAW_COLS
 
 SUPPORT_CHECK_COLS = [
     "dist_to_water_m",
@@ -92,7 +98,7 @@ def main() -> None:
 
     outputs_dir = project_root / "outputs" / "phase3"
     config_dir = outputs_dir / "config"
-    scaler_path = config_dir / "rtm_scaler.json"
+    scaler_path = config_dir / "rtm_feature_scaler.json"
 
     print(f"[phase3] project_root={project_root}")
     print(f"[phase3] habnetic_root={habnetic_root}")
@@ -102,7 +108,7 @@ def main() -> None:
 
     # Load reference city
     df_ref = load_city_features(reference_city, data_root)
-    validate_required_columns(df_ref, EXPOSURE_RAW_COLS)
+    validate_required_columns(df_ref, SCALER_COLS)
 
     # Fit or load scaler
     if scaler_path.exists() and not args.refit_scaler:
@@ -112,7 +118,7 @@ def main() -> None:
         print("[phase3] fitting new reference scaler")
         scaler = fit_reference_scaler(
             df_ref=df_ref,
-            cols=EXPOSURE_RAW_COLS,
+            cols=SCALER_COLS,
             reference_city=reference_city,
         )
         save_reference_scaler(scaler, scaler_path)
@@ -128,6 +134,11 @@ def main() -> None:
 
     print(f"[phase3] deriving E_hat_v0 for {target_city}")
     df_target = derive_e_hat_v0(df_target)
+
+    ref_hazard_median = float(df_ref["H_pluvial_v1_mm"].median())
+
+    df_target["H_pluvial_v1_rel"] = df_target["H_pluvial_v1_mm"] / ref_hazard_median
+    df_target["H_pluvial_v1_logrel"] = np.log(df_target["H_pluvial_v1_rel"])
 
     # support diagnostics
     validate_required_columns(df_ref, SUPPORT_CHECK_COLS)
@@ -165,8 +176,12 @@ def main() -> None:
         "data_root": str(data_root),
         "scaler_path": str(scaler_path),
         "exposure_raw_cols": EXPOSURE_RAW_COLS,
+        "hazard_raw_cols": HAZARD_RAW_COLS,
+        "scaler_cols": SCALER_COLS,
         "support_check_cols": SUPPORT_CHECK_COLS,
         "n_assets_reference": int(len(df_ref)),
+        "hazard_model_col": "H_pluvial_v1_logrel",
+        "hazard_reference_median_mm": ref_hazard_median,
         "n_assets_target": int(len(df_target)),
         "output_file": str(transformed_path),
         "support_diagnostics_json": str(diagnostics_json_path),
