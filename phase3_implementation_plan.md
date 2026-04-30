@@ -414,7 +414,159 @@ This memo matters because otherwise the repository will become another sediment 
 
 ---
 
-## 10. Proposed repository structure
+## Step 10 — Add validation and presentation layer from review feedback
+
+Phase 3 should include a lightweight validation and communication layer before closure. This is not a new modelling phase. It is a credibility layer added to the existing fixed-spec transfer experiment.
+
+### 10.1 Prior predictive checks
+
+Add prior predictive checks for the Phase 3 logistic model.
+
+Purpose:
+- verify that priors generate plausible impact probabilities before observing `Y_damage`
+- detect unrealistic probability inflation
+- document Bayesian calibration explicitly
+
+Outputs:
+```text
+    outputs/phase3/<CITY>/prior_predictive.nc
+    outputs/phase3/<CITY>/prior_predictive_summary.json
+```
+
+Minimum summaries:
+
+- prior predictive probability percentiles
+- prior predictive event-rate range
+- histogram of prior predictive probabilities
+
+Interpretation target:
+- priors should allow uncertainty but not imply absurdly high citywide damage rates by default
+
+### 10.2 Posterior result presentation
+
+For each city, report posterior results using a fixed three-part structure:
+
+Summary table
+- mean
+- median
+- 1%, 10%, 50%, 90%, 99% percentiles
+- HDI where appropriate
+- Histogram or density plot
+- parameters: α, β_E, β_H
+- decision quantities: top-k probability, posterior mean risk
+- Short interpretation
+- what is stable
+- what is uncertain
+- what changed under transfer
+
+This replaces dense prose with reproducible reporting.
+
+### 10.3 Sampling settings for final runs
+
+For exploratory runs:
+
+- chains = 4
+- draws = 500
+- tune = 500
+- target_accept = 0.9
+
+For final paper-grade runs:
+
+- chains = 4
+- draws = 1000
+- tune = 1000
+- target_accept = 0.9
+
+All reported final results should state:
+
+- number of chains
+- draws
+- tuning steps
+- divergences
+- R-hat
+- ESS
+### 10.4 Diagnostic case: probability inflation
+
+The earlier high-probability anomaly must be treated as a diagnostic case.
+
+In Phase 3, this was addressed by distinguishing:
+
+- H_pluvial_v1_mm_z: RTM z-scored hazard, retained for support diagnostics
+- H_pluvial_v1_logrel: RTM-median-relative hazard, used as model input
+
+Rationale:
+
+raw RTM-z hazard produced extreme out-of-support values for transferred cities
+relative log hazard preserves transfer stress without numerically dominating the logistic model
+
+This should be documented as a methodological diagnostic, not hidden as a silent fix.
+
+### 10.5 Input data visibility
+
+Add minimal data transparency artifacts:
+
+For each city:
+
+- 5-row sample of phase3_features_scaled.parquet
+- summary table of core predictors
+- basic GIS or spatial visualisation where possible
+
+Minimum data sample columns:
+
+-bldg_id
+- E_hat_v0
+- H_pluvial_v1_mm
+- H_pluvial_v1_logrel
+- Y_damage
+
+Purpose:
+
+- make the dataset legible
+- help readers understand what the model actually sees
+- avoid pure abstract modelling fog, humanity’s least useful weather system
+### 10.6 Figure additions
+
+Add the following figures to Phase 3 outputs:
+
+- ECDF of top-k membership probability by city
+- Borderline share vs k by city
+- Histogram of posterior mean risk by city
+- Forest plot of α, β_E, β_H by city
+- Optional GIS map of E_hat_v0 by city
+- Optional GIS map or raster preview of H_pluvial_v1_mm
+
+Suggested output folder:
+
+outputs/phase3/cross_city_summary/figures/
+### 10.7 Closure requirement update
+
+Phase 3 should not be considered closed until:
+
+- prior predictive checks have been run
+- posterior summaries are tabulated
+- comparison figures are generated
+- probability inflation / hazard scaling diagnostic is documented
+- final memo includes both results and limitations
+
+This does not create a new Phase 3.5. It completes Phase 3 properly.
+
+
+INFERENCE_EXPLORATORY = {
+    "chains": 4,
+    "draws": 500,
+    "tune": 500,
+    "target_accept": 0.9,
+}
+
+INFERENCE_FINAL = {
+    "chains": 4,
+    "draws": 1000,
+    "tune": 1000,
+    "target_accept": 0.9,
+}
+---
+
+## 11. Proposed repository structure
 
 ```text
 resilient-housing-bayes/
@@ -477,7 +629,7 @@ resilient-housing-bayes/
 
 ---
 
-## 11. Minimal code architecture
+## 12. Minimal code architecture
 
 ### `loaders.py`
 - city-aware raw data loading
@@ -521,7 +673,7 @@ The notebook should still not be the engine. It should merely observe the machin
 
 ---
 
-## 12. Default experiment settings
+## 13. Default experiment settings
 
 Suggested defaults:
 
@@ -535,10 +687,17 @@ TOP_K_SHARES = [0.005, 0.01, 0.025]
 BORDERLINE_LOW = 0.2
 BORDERLINE_HIGH = 0.8
 
-INFERENCE = {
-    "chains": 2,
+INFERENCE_EXPLORATORY = {
+    "chains": 4,
     "draws": 500,
     "tune": 500,
+    "target_accept": 0.9,
+}
+
+INFERENCE_FINAL = {
+    "chains": 4,
+    "draws": 1000,
+    "tune": 1000,
     "target_accept": 0.9,
 }
 ```
@@ -551,7 +710,7 @@ If runtime is too high:
 
 ---
 
-## 13. Validation checklist
+## 14. Validation checklist
 
 For every city:
 - required schema matches Rotterdam baseline
@@ -566,7 +725,7 @@ For every city:
 
 ---
 
-## 14. Decision rules for interpreting results
+## 15. Decision rules for interpreting results
 
 ### Structural robustness
 - borderline share remains low
@@ -589,7 +748,7 @@ If structural breakdown appears, that is not failure. It is the experiment worki
 
 ---
 
-## 15. Minimal viable Phase 3
+## 16. Minimal viable Phase 3
 
 Start with the smallest experiment that can falsify the idea quickly.
 
@@ -631,7 +790,7 @@ It answers the main question before Phase 3 becomes another sprawling monument t
 
 ---
 
-## 16. Deliverables
+## 17. Deliverables
 
 At the end of the minimal Phase 3 segment, produce:
 
@@ -658,7 +817,7 @@ One page:
 
 ---
 
-## 17. Closure target
+## 18. Closure target
 
 Phase 3 will be considered minimally successful if:
 - one transferred city has been processed end-to-end
@@ -670,7 +829,7 @@ This phase does not need to prove universal generality. It only needs to tell yo
 
 ---
 
-## 18. Outcome criterion
+## 19. Outcome criterion
 
 Two broad outcomes are possible.
 
