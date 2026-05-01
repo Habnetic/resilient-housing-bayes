@@ -37,12 +37,19 @@ def main():
 
     with model:
         idata = pm.sample(
-            draws=500,
-            tune=500,
+            draws=1000,
+            tune=1000,
             chains=4,
             cores=4,
             target_accept=0.9,
             random_seed=42,
+        )
+
+        idata.extend(
+            pm.sample_posterior_predictive(
+                idata,
+                random_seed=42,
+            )
         )
 
     # Save idata

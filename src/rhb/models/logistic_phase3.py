@@ -3,17 +3,24 @@ from __future__ import annotations
 import pymc as pm
 
 
-def build_phase3_model(E, H, y):
+def build_phase3_model(
+    E,
+    H,
+    y,
+    alpha_mu: float = 0.0,
+    alpha_sigma: float = 2.5,
+    beta_e_mu: float = 0.0,
+    beta_e_sigma: float = 2.5,
+    beta_h_mu: float = 0.0,
+    beta_h_sigma: float = 2.5,
+):
     with pm.Model() as model:
-        # Priors
-        alpha = pm.Normal("alpha", mu=0, sigma=2.5)
-        beta_E = pm.Normal("beta_E", mu=0, sigma=2.5)
-        beta_H = pm.Normal("beta_H", mu=0, sigma=2.5)
+        alpha = pm.Normal("alpha", mu=alpha_mu, sigma=alpha_sigma)
+        beta_E = pm.Normal("beta_E", mu=beta_e_mu, sigma=beta_e_sigma)
+        beta_H = pm.Normal("beta_H", mu=beta_h_mu, sigma=beta_h_sigma)
 
-        # Linear predictor
         logit_p = alpha + beta_E * E + beta_H * H
 
-        # Likelihood (use logit directly, no sigmoid needed here)
         pm.Bernoulli(
             "Y_obs",
             logit_p=logit_p,
