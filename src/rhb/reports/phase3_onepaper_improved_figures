@@ -1,0 +1,439 @@
+from __future__ import annotations
+
+import argparse
+import re
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from matplotlib.ticker import FuncFormatter
+
+
+CITIES = ["RTM", "HAM", "DON"]
+
+BASE_PATH = Path("outputs") / "phase3"
+OUT_DIR = BASE_PATH / "cross_city_summary" / "onepager_figures"
+
+BORDERLINE_LOW = 0.2
+BORDERLINE_HIGH = 0.8
+
+# Habnetic palette
+NAVY = "#0B132B"
+TEAL = "#09303A"
+TURQUOISE = "#29D3C3"
+CORAL = "#FF4B3A"
+WHITE = "#FFFFFF"
+LIGHT_TEAL = "#DDF7F4"
+LIGHT_GREY = "#E8E8E8"
+MID_GREY = "#6F6F6F"
+
+CITY_LABELS = {
+    "RTM": "Rotterdam",
+    "HAM": "Hamburg",
+    "DON": "Donostia",
+}
+
+CITY_COLORS = {
+    "RTM": NAVY,
+    "HAM": TURQUOISE,
+    "DON": CORAL,
+}
+
+
+def sigmoid(x: np.ndarray) -> np.ndarray:
+    return 1.0 / (1.0 + np.exp(-x))
+
+
+def parse_topk_cols(columns: list[str]) -> dict[int, str]:
+    out: dict[int, str] = {}
+    for col in columns:
+        m = re.fullmatch(r"topk_prob_k(\d+)", col)
+        if m:
+            out[int(m.group(1))] = col
+    return out
+
+
+def select_k_for_share(metrics: pd.DataFrame, share: float) -> tuple[int, str]:
+    n = len(metrics)
+    target_k = max(1, int(round(n * share)))
+    candidates = parse_topk_cols(metrics.columns.tolist())
+
+    if not candidates:
+        raise KeyError("No topk_prob_k* columns found in asset_metrics.parquet")
+
+    k = min(candidates.keys(), key=lambda kk: abs(kk - target_k))
+    return k, candidates[k]
+
+
+def load_city(city: str, share: float) -> pd.DataFrame:
+    city = city.upper()
+
+    features_path = BASE_PATH / city / "phase3_features_scaled.parquet"
+    metrics_path = BASE_PATH / city / "asset_metrics.parquet"
+    summary_path = BASE_PATH / city / "summary.json"
+
+    features = pd.read_parquet(features_path)
+    metrics = pd.read_parquet(metrics_path)
+    summary = pd.read_json(summary_path, orient="index")
+
+    k, topk_col = select_k_for_share(metrics, share)
+
+    df = features.merge(
+        metrics[["bldg_id", topk_col]],
+        on="bldg_id",
+        how="inner",
+        validate="one_to_one",
+    )
+
+    alpha = float(summary.loc["alpha", "mean"])
+    beta_e = float(summary.loc["beta_E", "mean"])
+    beta_h = float(summary.loc["beta_H", "mean"])
+
+    df["expected_risk"] = sigmoid(
+        alpha
+        + beta_e * df["E_hat_v0"].to_numpy()
+        + beta_h * df["H_pluvial_v1_logrel"].to_numpy()
+    )
+
+    df = df.rename(columns={topk_col: "topk_prob"})
+    df["city"] = city
+    df["selected_k"] = k
+    df["selected_share"] = k / len(df)
+
+    return df
+
+
+def prepare_ranked(df: pd.DataFrame) -> pd.DataFrame:
+    out = df.sort_values("expected_risk", ascending=False).reset_index(drop=True)
+    out["rank"] = np.arange(1, len(out) + 1)
+    out["rank_log"] = np.log10(out["rank"])
+    return out
+
+
+def rolling_band(x: pd.Series, y: pd.Series, bins: int = 100) -> pd.DataFrame:
+    tmp = pd.DataFrame({"x": x, "y": y}).dropna()
+    tmp["bin"] = pd.cut(tmp["x"], bins=bins, labels=False, include_lowest=True)
+
+    g = tmp.groupby("bin", observed=True)
+
+    return pd.DataFrame(
+        {
+            "x": g["x"].median(),
+            "q10": g["y"].quantile(0.10),
+            "median": g["y"].median(),
+            "q90": g["y"].quantile(0.90),
+        }
+    ).dropna()
+
+
+def classify_decisions(df: pd.DataFrame) -> dict[str, float]:
+    p = df["topk_prob"]
+
+    stable_out = float((p <= BORDERLINE_LOW).mean())
+    uncertain = float(((p > BORDERLINE_LOW) & (p < BORDERLINE_HIGH)).mean())
+    stable_in = float((p >= BORDERLINE_HIGH).mean())
+
+    return {
+        "stable_out_share": stable_out,
+        "borderline_share": uncertain,
+        "stable_in_share": stable_in,
+        "stable_share": stable_out + stable_in,
+    }
+
+
+def style_ax(ax: plt.Axes) -> None:
+    ax.set_facecolor(WHITE)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_color(NAVY)
+    ax.spines["bottom"].set_color(NAVY)
+    ax.tick_params(axis="both", colors=NAVY, labelsize=8)
+    ax.grid(False)
+
+
+def save(fig: plt.Figure, stem: str) -> None:
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    for ext in ["png", "pdf", "svg"]:
+        path = OUT_DIR / f"{stem}.{ext}"
+        fig.savefig(
+            path,
+            dpi=320 if ext == "png" else None,
+            bbox_inches="tight",
+            facecolor=WHITE,
+        )
+        print(f"[saved] {path}")
+
+    plt.close(fig)
+
+
+def log_rank_formatter(x: float, _: int) -> str:
+    value = int(round(10**x))
+    if value >= 1000:
+        return f"{value // 1000}k"
+    return str(value)
+
+
+def plot_onepager_decision_stability(df: pd.DataFrame, city: str) -> None:
+    ranked = prepare_ranked(df)
+    band = rolling_band(ranked["rank_log"], ranked["topk_prob"], bins=35)
+    stats = classify_decisions(ranked)
+
+    k = int(ranked["selected_k"].iloc[0])
+    share = float(ranked["selected_share"].iloc[0])
+    city_label = CITY_LABELS.get(city, city)
+
+    fig, ax = plt.subplots(figsize=(5.6, 3.8), facecolor=WHITE)
+    style_ax(ax)
+
+    # Decision regions
+    ax.axhspan(0.0, BORDERLINE_LOW, color=WHITE, zorder=0)
+    ax.axhspan(BORDERLINE_LOW, BORDERLINE_HIGH, color=LIGHT_TEAL, alpha=0.95, zorder=0)
+    ax.axhspan(BORDERLINE_HIGH, 1.0, color=WHITE, zorder=0)
+
+    ax.axhline(BORDERLINE_LOW, color=TEAL, linestyle="--", linewidth=1.0)
+    ax.axhline(BORDERLINE_HIGH, color=TEAL, linestyle="--", linewidth=1.0)
+
+    # Probability curve
+    ax.fill_between(
+        band["x"],
+        band["q10"],
+        band["q90"],
+        color=TURQUOISE,
+        alpha=0.18,
+        linewidth=0,
+        zorder=1,
+    )
+
+    ax.plot(
+        band["x"],
+        band["median"],
+        color=NAVY,
+        linewidth=2.0,
+        zorder=2,
+    )
+
+    # Region labels
+    ax.text(
+        0.03,
+        0.90,
+        "stable\nhigh priority",
+        transform=ax.transAxes,
+        fontsize=10,
+        color=NAVY,
+        weight="bold",
+        va="top",
+    )
+
+    ax.text(
+        0.56,
+        0.50,
+        "uncertain boundary\n0.2–0.8",
+        transform=ax.transAxes,
+        fontsize=10,
+        color=TEAL,
+        weight="bold",
+        ha="center",
+        va="center",
+    )
+
+    ax.text(
+        0.67,
+        0.07,
+        "stable low priority",
+        transform=ax.transAxes,
+        fontsize=10,
+        color=NAVY,
+        weight="bold",
+        va="bottom",
+    )
+
+    # Summary annotation
+    stable_pct = stats["stable_share"] * 100
+    uncertain_pct = stats["borderline_share"] * 100
+
+    summary_text = (
+        f"{stable_pct:.2f}% stable\n"
+        f"{uncertain_pct:.2f}% uncertainty band"
+    )
+
+    ax.text(
+        0.98,
+        0.90,
+        summary_text,
+        transform=ax.transAxes,
+        ha="right",
+        va="top",
+        fontsize=9,
+        color=NAVY,
+        weight="bold",
+        bbox=dict(
+            boxstyle="round,pad=0.38",
+            facecolor=WHITE,
+            edgecolor=LIGHT_GREY,
+            linewidth=1,
+        ),
+    )
+
+    ax.set_title(
+        "Decision stability structure",
+        fontsize=18,
+        weight="bold",
+        color=NAVY,
+        loc="left",
+        pad=18,
+    )
+
+    ax.text(
+        0.0,
+        1.015,
+        f"{city_label} baseline · top-priority set ≈ {share:.1%} of buildings · k={k:,}",
+        transform=ax.transAxes,
+        fontsize=9,
+        color=MID_GREY,
+        va="bottom",
+    )
+
+    ax.set_ylabel("Probability of being prioritised", fontsize=8.5, color=NAVY)
+    ax.set_xlabel("Buildings ranked by posterior risk", fontsize=8.5, color=NAVY)
+    ax.set_ylim(-0.02, 1.02)
+    ax.xaxis.set_major_formatter(FuncFormatter(log_rank_formatter))
+
+    fig.tight_layout()
+    save(fig, f"{city}_onepager_decision_stability_structure")
+
+
+def plot_cross_city_decision_stability(cities_df: dict[str, pd.DataFrame]) -> None:
+    """
+    Companion cross-city figure.
+    Use this if you want a small technical credibility plot.
+    """
+    fig, axes = plt.subplots(1, 3, figsize=(8.8, 2.7), sharey=True)
+    fig.patch.set_facecolor(WHITE)
+
+    rows = []
+
+    for ax, city in zip(axes, CITIES):
+        ranked = prepare_ranked(cities_df[city])
+        band = rolling_band(ranked["rank_log"], ranked["topk_prob"], bins=100)
+        stats = classify_decisions(ranked)
+
+        style_ax(ax)
+
+        ax.axhspan(BORDERLINE_LOW, BORDERLINE_HIGH, color=LIGHT_TEAL, alpha=0.95)
+        ax.axhline(BORDERLINE_LOW, color=TEAL, linestyle="--", linewidth=0.9)
+        ax.axhline(BORDERLINE_HIGH, color=TEAL, linestyle="--", linewidth=0.9)
+
+        ax.fill_between(
+            band["x"],
+            band["q10"],
+            band["q90"],
+            color=CITY_COLORS[city],
+            alpha=0.15,
+            linewidth=0,
+        )
+        ax.plot(
+            band["x"],
+            band["median"],
+            color=CITY_COLORS[city],
+            linewidth=2.3,
+        )
+
+        city_label = CITY_LABELS.get(city, city)
+        k = int(ranked["selected_k"].iloc[0])
+        share = float(ranked["selected_share"].iloc[0])
+
+        ax.set_title(
+            f"{city_label}\nk={k:,} · {share:.1%}",
+            fontsize=8.5,
+            color=NAVY,
+            weight="bold",
+        )
+
+        ax.text(
+            0.96,
+            0.08,
+            f"{stats['borderline_share']:.2%}\nuncertainty band",
+            transform=ax.transAxes,
+            ha="right",
+            va="bottom",
+            fontsize=7,
+            color=NAVY,
+            bbox=dict(
+                boxstyle="round,pad=0.25",
+                facecolor=WHITE,
+                edgecolor=LIGHT_GREY,
+                linewidth=0.8,
+            ),
+        )
+
+        ax.set_xlabel("Ranked buildings", fontsize=7.5, color=NAVY)
+        ax.xaxis.set_major_formatter(FuncFormatter(log_rank_formatter))
+        ax.set_ylim(-0.02, 1.02)
+
+        rows.append(
+            {
+                "city": city,
+                "n_assets": len(ranked),
+                "k": k,
+                "k_share": share,
+                **stats,
+            }
+        )
+
+    axes[0].set_ylabel("Probability of being prioritised", fontsize=8, color=NAVY)
+
+    fig.suptitle(
+        "Same stability structure across cities",
+        fontsize=12.5,
+        weight="bold",
+        color=NAVY,
+        y=1.06,
+    )
+
+    fig.tight_layout()
+    save(fig, "onepager_cross_city_decision_stability")
+
+    summary = pd.DataFrame(rows)
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    summary.to_csv(OUT_DIR / "onepager_summary.csv", index=False)
+    summary.to_markdown(OUT_DIR / "onepager_summary.md", index=False)
+    print(summary)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--reference-city",
+        default="RTM",
+        choices=CITIES,
+        help="City used for the main one-pager figure.",
+    )
+    parser.add_argument(
+        "--share",
+        type=float,
+        default=0.01,
+        help="Target top-k share. Script selects nearest available topk_prob_k* column.",
+    )
+    parser.add_argument(
+        "--cross-city",
+        action="store_true",
+        help="Also export the cross-city companion plot.",
+    )
+
+    args = parser.parse_args()
+
+    cities_df = {city: load_city(city, args.share) for city in CITIES}
+
+    ref = args.reference_city.upper()
+    plot_onepager_decision_stability(cities_df[ref], ref)
+
+    if args.cross_city:
+        plot_cross_city_decision_stability(cities_df)
+
+    print(f"\n[done] figures saved to {OUT_DIR}")
+
+
+if __name__ == "__main__":
+    main()
