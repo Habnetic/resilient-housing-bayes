@@ -1,0 +1,194 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+import geopandas as gpd
+import pandas as pd
+
+ZOOM_BOUNDS = {
+    "RTM": (
+        95476.0292181078,
+        439970.3022609383,
+        98450.54795172885,
+        441141.35815297574,
+    ),
+
+    "HAM": (
+        457494.07837966125,
+        626366.7354627749,
+        463443.11584690335,
+        628708.8472468498,
+    ),
+
+    "DON": (
+        -449764.0092495569,
+        -494932.60950723337,
+        -445302.2311491256,
+        -493176.0256691773,
+    ),
+}
+
+
+CITIES = ["RTM", "HAM", "DON"]
+
+# Run this from the resilient-housing-bayes repository root.
+PROJECT_ROOT = Path.cwd()
+HABNETIC_ROOT = PROJECT_ROOT.parent
+
+DATA_ROOT = HABNETIC_ROOT / "data" / "processed"
+PHASE3_ROOT = PROJECT_ROOT / "outputs" / "phase3"
+OUTPUT_ROOT = PHASE3_ROOT / "cross_city_summary" / "qgis_layers"
+
+GEOMETRY_PATHS = {
+    "RTM": DATA_ROOT / "RTM" / "derived" / "buildings_rtm.gpkg",
+    "HAM": DATA_ROOT / "HAM" / "derived" / "buildings_ham.gpkg",
+    "DON": DATA_ROOT / "DON" / "derived" / "buildings_don.gpkg",
+}
+
+TOPK_COL = "topk_prob_k1000"
+BORDERLINE_COL = "borderline_k1000"
+BORDERLINE_LOW = 0.2
+BORDERLINE_HIGH = 0.8
+
+# Keep the QGIS export lean. Add more columns only if you really need them.
+OPTIONAL_FEATURE_COLS = [
+    "E_hat_v0",
+    "H_pluvial_v1_mm",
+    "H_pluvial_v1_logrel",
+    "Y_damage",
+]
+
+
+def read_metrics(city: str) -> pd.DataFrame:
+    metrics_path = PHASE3_ROOT / city / "asset_metrics.parquet"
+    if not metrics_path.exists():
+        raise FileNotFoundError(f"Missing metrics file: {metrics_path}")
+
+    metrics = pd.read_parquet(metrics_path)
+    if "bldg_id" not in metrics.columns:
+        raise KeyError(f"{metrics_path} missing bldg_id")
+
+    if TOPK_COL not in metrics.columns:
+        candidates = sorted(c for c in metrics.columns if c.startswith("topk_prob_k"))
+        if not candidates:
+            raise KeyError(f"No top-k probability column found in {metrics_path}")
+        chosen = candidates[0]
+        print(f"[qgis] warning: {TOPK_COL} missing for {city}; using {chosen}")
+        metrics = metrics.rename(columns={chosen: TOPK_COL})
+
+    keep = ["bldg_id", TOPK_COL]
+    return metrics[keep].copy()
+
+
+def read_features(city: str) -> pd.DataFrame:
+    features_path = PHASE3_ROOT / city / "phase3_features_scaled.parquet"
+    if not features_path.exists():
+        print(f"[qgis] no features file for {city}: {features_path}")
+        return pd.DataFrame(columns=["bldg_id"])
+
+    features = pd.read_parquet(features_path)
+    if "bldg_id" not in features.columns:
+        raise KeyError(f"{features_path} missing bldg_id")
+
+    keep = ["bldg_id"] + [c for c in OPTIONAL_FEATURE_COLS if c in features.columns]
+    return features[keep].copy()
+
+
+def prepare_city(city: str) -> Path:
+    city = city.upper()
+    geom_path = GEOMETRY_PATHS[city]
+    if not geom_path.exists():
+        raise FileNotFoundError(f"Missing geometry file for {city}: {geom_path}")
+
+    print(f"\n[qgis] city={city}")
+    print(f"[qgis] geometry: {geom_path}")
+
+    gdf = gpd.read_file(geom_path)
+    if "bldg_id" not in gdf.columns:
+        raise KeyError(f"{geom_path} missing bldg_id")
+
+    metrics = read_metrics(city)
+    features = read_features(city)
+
+    df = metrics.merge(features, on="bldg_id", how="left")
+    df[BORDERLINE_COL] = (
+        (df[TOPK_COL] > BORDERLINE_LOW) & (df[TOPK_COL] < BORDERLINE_HIGH)
+    ).astype(int)
+
+    # Helpful categorical class for quick QGIS styling.
+    df["decision_class_k1000"] = "stable_low"
+    df.loc[df[TOPK_COL] >= BORDERLINE_HIGH, "decision_class_k1000"] = "stable_high"
+    df.loc[
+        (df[TOPK_COL] > BORDERLINE_LOW) & (df[TOPK_COL] < BORDERLINE_HIGH),
+        "decision_class_k1000",
+    ] = "borderline"
+
+    joined = gdf.merge(df, on="bldg_id", how="inner", validate="one_to_one")
+    if joined.empty:
+        raise ValueError(f"Join produced empty GeoDataFrame for {city}")
+
+    OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
+    out_path = OUTPUT_ROOT / f"{city}_phase3_topk_qgis.gpkg"
+
+    # Delete existing file to avoid stale layers inside the GeoPackage.
+    if out_path.exists():
+        out_path.unlink()
+
+    joined.to_file(out_path, layer=f"{city}_topk_k1000", driver="GPKG")
+
+    summary = {
+        "city": city,
+        "rows": len(joined),
+        "topk_col": TOPK_COL,
+        "borderline_share": float(joined[BORDERLINE_COL].mean()),
+        "stable_high_share": float((joined[TOPK_COL] >= BORDERLINE_HIGH).mean()),
+        "stable_low_share": float((joined[TOPK_COL] <= BORDERLINE_LOW).mean()),
+        "crs": str(joined.crs),
+        "output": str(out_path),
+    }
+    print("[qgis] summary:")
+    for key, value in summary.items():
+        print(f"  - {key}: {value}")
+
+    return out_path
+
+
+def write_readme(outputs: list[Path]) -> None:
+    readme = OUTPUT_ROOT / "README.md"
+    lines = [
+        "# Phase 3 QGIS layers",
+        "",
+        "Generated by `prepare_phase3_qgis_layers.py`.",
+        "",
+        "Load these GeoPackages in QGIS:",
+        "",
+    ]
+    for path in outputs:
+        lines.append(f"- `{path}`")
+    lines += [
+        "",
+        "Suggested QGIS styling:",
+        "",
+        "1. Duplicate the layer.",
+        "2. Base layer: light gray fill, no outline, opacity 40-70%.",
+        "3. Signal layer filter: `topk_prob_k1000 > 0.10`.",
+        "4. Signal layer style: graduated or continuous inferno/magma ramp using `topk_prob_k1000`.",
+        "5. Optional boundary layer filter: `borderline_k1000 = 1`; style with orange/red outline.",
+        "6. Use the QGIS extent readout to copy `(xmin, ymin, xmax, ymax)` into `ZOOM_BOUNDS` in `phase3_maps_paper.py`.",
+        "",
+        "These layers are spatial diagnostics for decision stability, not hydraulic validation. Apparently we need to say this because maps hypnotize people.",
+    ]
+    readme.write_text("\n".join(lines), encoding="utf-8")
+    print(f"\n[qgis] wrote: {readme}")
+
+
+def main() -> None:
+    outputs = []
+    for city in CITIES:
+        outputs.append(prepare_city(city))
+    write_readme(outputs)
+    print("\n[qgis] done")
+
+
+if __name__ == "__main__":
+    main()
