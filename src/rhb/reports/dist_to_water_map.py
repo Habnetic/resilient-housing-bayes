@@ -6,6 +6,13 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 import pandas as pd
 
+try:
+    import osmnx as ox
+except ImportError:
+    ox = None
+
+WATER_FILL = "#C2E5EE"
+WATER_EDGE = "#7DBFD1"
 
 CITIES = ["RTM", "HAM", "DON"]
 
@@ -21,6 +28,84 @@ GEOMETRY_PATHS = {
 DEFAULT_PRIORS_FILE = "building_water_proximity.parquet"
 DON_V2_PRIORS_FILE = "building_water_proximity_v2_coast.parquet"
 
+def get_osm_water_cache_path(city: str) -> Path:
+    return OUTPUT_DIR / "_cache" / f"{city.upper()}_osm_water.gpkg"
+
+
+def fetch_osm_water_for_city(city: str, gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame | None:
+    if ox is None:
+        print("[water] osmnx not installed; skipping OSM water")
+        return None
+
+    city = city.upper()
+    cache_path = get_osm_water_cache_path(city)
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if cache_path.exists():
+        water = gpd.read_file(cache_path)
+        if water.crs != gdf.crs:
+            water = water.to_crs(gdf.crs)
+        return water
+
+    gdf_wgs = gdf.to_crs(4326)
+    xmin, ymin, xmax, ymax = gdf_wgs.total_bounds
+
+    pad_x = (xmax - xmin) * 0.04
+    pad_y = (ymax - ymin) * 0.04
+
+    tags = {
+        "natural": ["water", "bay", "strait", "coastline"],
+        "waterway": ["river", "canal", "stream", "dock"],
+        "landuse": ["reservoir"],
+        "water": True,
+    }
+
+    water = ox.features_from_bbox(
+        north=ymax + pad_y,
+        south=ymin - pad_y,
+        east=xmax + pad_x,
+        west=xmin - pad_x,
+        tags=tags,
+    )
+
+    if water.empty:
+        print(f"[water] empty for {city}")
+        return None
+
+    water = water.reset_index()
+    water = gpd.GeoDataFrame(water[["geometry"]], geometry="geometry", crs=4326)
+    water = water[~water.geometry.is_empty & water.geometry.notna()].copy()
+    water = water.to_crs(gdf.crs)
+
+    water.to_file(cache_path, driver="GPKG")
+    return water
+
+
+def plot_water(water: gpd.GeoDataFrame | None, ax: plt.Axes) -> None:
+    if water is None or water.empty:
+        return
+
+    polygons = water[water.geometry.geom_type.isin(["Polygon", "MultiPolygon"])]
+    lines = water[water.geometry.geom_type.isin(["LineString", "MultiLineString"])]
+
+    if not polygons.empty:
+        polygons.plot(
+            ax=ax,
+            color=WATER_FILL,
+            edgecolor="none",
+            linewidth=0,
+            alpha=0.65,
+            zorder=0,
+        )
+
+    if not lines.empty:
+        lines.plot(
+            ax=ax,
+            color=WATER_EDGE,
+            linewidth=0.35,
+            alpha=0.95,
+            zorder=0,
+        )
 
 def get_project_root() -> Path:
     return Path(__file__).resolve().parents[3]
@@ -106,7 +191,7 @@ def get_bounds(values: pd.Series, q_low: float = 0.02, q_high: float = 0.98) -> 
     return float(vmin), float(vmax)
 
 
-def plot_map(gdf: gpd.GeoDataFrame, city: str) -> None:
+def plot_map(gdf: gpd.GeoDataFrame, city: str, water: gpd.GeoDataFrame | None = None) -> None:
     city = city.upper()
     col = "dist_to_water_m"
 
@@ -114,6 +199,7 @@ def plot_map(gdf: gpd.GeoDataFrame, city: str) -> None:
     vmin, vmax = get_bounds(values)
 
     fig, ax = plt.subplots(figsize=(9, 8))
+    plot_water(water, ax)
 
     gdf.plot(
         column=col,
@@ -124,6 +210,7 @@ def plot_map(gdf: gpd.GeoDataFrame, city: str) -> None:
         vmin=vmin,
         vmax=vmax,
         legend=True,
+        zorder=2,
         legend_kwds={
             "shrink": 0.45,
             "label": "Distance to water [m]",
@@ -161,7 +248,8 @@ def main() -> None:
     for city in CITIES:
         print(f"\n[city] {city}")
         gdf = load_data(city)
-        plot_map(gdf, city)
+        water = fetch_osm_water_for_city(city, gdf)
+        plot_map(gdf, city, water)
 
 
 if __name__ == "__main__":
