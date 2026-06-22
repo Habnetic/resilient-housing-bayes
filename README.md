@@ -1,161 +1,152 @@
 # 🪐 Resilient Housing Bayes
 
-**Bayesian simulation framework for modeling housing resilience and urban-scale risk.**  
-Part of the **[Habnetic](https://habnetic.org)** open research initiative.
+**Bayesian framework for posterior decision stability and robust prioritisation under uncertainty.**
+
+Part of the **[Habnetic](https://habnetic.org)** open research project.
 
 ---
 
-## 🧭 Overview
-**Resilient Housing Bayes** is Habnetic’s foundational research module exploring how buildings and housing systems behave under uncertainty.  
-It integrates **Bayesian inference**, **synthetic data generation**, and **stochastic hazard simulation** to estimate fragility, downtime, and recovery costs at building and urban scales.
+# Overview
 
-The goal is to provide transparent, reproducible probabilistic models that can inform both **resilience policy** and **adaptive design strategies** — for habitats on Earth and, eventually, beyond it.
+**Resilient Housing Bayes** is the primary research repository behind Habnetic.
 
----
+It develops Bayesian methods for estimating **posterior decision stability**, allowing prioritisation decisions to be expressed as probability distributions rather than deterministic rankings.
 
-## 🔗 Position in the Habnetic ecosystem
+The current implementation focuses on **urban flood prioritisation**, using Rotterdam as the baseline case study followed by cross-city transfer experiments in Hamburg and Donostia-San Sebastián.
 
-This repository **does not define exposure variables or datasets**.
-
-Instead, it:
-- **consumes canonical exposure priors** defined in `Habnetic/docs`
-- **reads derived datasets** generated in `Habnetic/data`
-- **implements Bayesian models** using those definitions
-
-Separation of concerns:
-- **Habnetic/docs** → conceptual definitions, assumptions, interpretation constraints  
-- **Habnetic/data** → raw, normalized, and derived datasets  
-- **resilient-housing-bayes** → probabilistic models, inference, validation
+The repository emphasizes transparent, reproducible Bayesian workflows built on open data and open-source software.
 
 ---
 
-## 🧑‍🔬 Project stewardship
+# Position within the Habnetic ecosystem
 
-This repository is initiated and currently maintained by **Mikel Martinez Mugica**  
-as part of the **Habnetic** open research initiative.
+This repository is responsible for the **probabilistic modelling layer**.
 
-The project is released under an open-source license (MIT) and welcomes discussion,
-feedback, and contributions.  
-Overall direction, conceptual coherence, and final integration decisions currently
-rest with the maintainer.
+It consumes canonical exposure definitions and processed datasets generated elsewhere within Habnetic while implementing the statistical models, inference procedures, diagnostics, and visualisations.
 
-This may evolve as Habnetic grows into a broader collaborative structure.
+Responsibilities are intentionally separated:
 
----
-
-## ⚙️ Features
-- 🧩 **Probabilistic modeling** using PyMC and ArviZ  
-- 🧠 **Synthetic dataset generation** for resilience testing  
-- 📈 **Fragility curve estimation** for multiple hazard types  
-- 🌀 **Monte Carlo simulation** for reconstruction cost and downtime  
-- 🧱 **Modular, extensible structure** for urban-scale adaptation  
+* **Habnetic/docs** → conceptual framework, methodology, definitions
+* **Habnetic/data** → raw, processed, and derived datasets
+* **resilient-housing-bayes** → Bayesian models, inference, posterior analysis, visualisation
 
 ---
 
-## 🧩 Repository Structure
+# Stewardship
 
-```
+This repository was founded and is currently stewarded by **Mikel Martínez Mugica**.
+
+Development is conducted openly under permissive open-source licenses. Strategic direction, conceptual coherence, and project governance currently remain under the stewardship of **Mikel Martínez Mugica**.
+
+Contributions, discussion, and collaboration are welcome while maintaining a coherent long-term research direction.
+
+---
+
+# Current capabilities
+
+* Bayesian modelling with PyMC
+* Posterior decision probability estimation
+* Cross-city transfer experiments
+* Posterior predictive checks
+* Reproducible data pipelines
+* Publication-quality figures and visualisations
+
+---
+
+# Repository structure
+
+```text
 resilient-housing-bayes/
-│   .gitignore
-│   LICENSE
-│   README.md
 │
-├───data/
-├───docs/
-├───notebooks/
-│       01_data_exploration.ipynb
-│       02_synthetic_generation.ipynb
-│       03_model_definition.ipynb
-│       04_inference_and_validation.ipynb
-│       05_visualization.ipynb
+├── data/
+├── docs/
+├── notebooks/
+│   ├── 01_data_exploration.ipynb
+│   ├── 02_synthetic_generation.ipynb
+│   ├── 03_model_definition.ipynb
+│   ├── 04_inference_and_validation.ipynb
+│   └── 05_visualization.ipynb
 │
-└───src/
+└── src/
 ```
-Notebooks follow a strict progression:
-1. **Data exploration** (understanding priors and distributions)
-2. **Synthetic generation** (prior predictive reasoning)
-3. **Model definition** (generative structure)
-4. **Inference and validation**
-5. **Visualization and communication**
 
-Skipping steps is discouraged.
+The notebooks follow a structured workflow:
 
-At present, the repository focuses on validating exposure inputs and model structure; inference results are exploratory and subject to change.
+1. Data exploration
+2. Prior predictive reasoning
+3. Bayesian model definition
+4. Posterior inference and validation
+5. Visualisation and communication
+
+Skipping intermediate steps is discouraged to preserve reproducibility.
 
 ---
 
-## 📦 Dependencies
-- Python 3.11+
-- [PyMC](https://www.pymc.io/)
-- [ArviZ](https://python.arviz.org/)
-- NumPy, pandas, geopandas
-- Matplotlib (default), Plotly optional
+# Current research status
 
-Install the environment:
+Current work includes:
+
+* Exposure proxy construction
+* Hazard proxy integration
+* Posterior decision stability estimation
+* Cross-city transfer evaluation
+* Robust prioritisation analysis
+
+Future releases will introduce fully Bayesian hazard modelling and hierarchical uncertainty propagation.
+
+---
+
+# Dependencies
+
+* Python 3.11+
+* PyMC
+* ArviZ
+* NumPy
+* pandas
+* GeoPandas
+* Matplotlib
+* Plotly (optional)
+
+Installation:
 
 ```bash
 pip install -r requirements.txt
-
 ```
 
 ---
 
-## 🧠 Roadmap (module scope)
-**Phase I — Synthetic Modeling**  
-Develop Bayesian fragility models for simplified housing typologies.  
+# Related repositories
 
-**Phase II — Open Data Integration**  
-Incorporate open hazard and climate data from NASA, ESA, and Copernicus.  
-
-**Phase III — Urban-Scale Simulation**  
-Extend probabilistic inference to city-scale networks and interdependencies.
+* https://github.com/Habnetic/data
+* https://github.com/Habnetic/docs
+* https://github.com/Habnetic/habnetic.github.io
 
 ---
 
-## 📚 Conceptual references
+# Links
 
-All exposure variables used in this repository follow **canonical definitions**
-maintained in the Habnetic documentation repository.
+🌐 Website: https://habnetic.org
 
-Current references:
-- **RTM — Water Exposure Prior (v0)**  
-  https://github.com/Habnetic/docs/blob/main/references/exposure/rtm_water_exposure_v0.md
+🆔 ORCID: https://orcid.org/0009-0006-5170-4405
 
-No exposure variable is defined locally in this repository.
-Any change in exposure semantics must occur upstream in `Habnetic/docs`.
+📫 Email: [info@habnetic.org](mailto:info@habnetic.org)
 
 ---
 
-## 🧪 Citation & Acknowledgement
-All code and research materials are released under the **MIT License**.  
-If you use this work, please cite:
+# Citation
 
-> **Habnetic (2026)**. *Resilient Housing Bayes: Bayesian Modeling Framework for Housing Resilience.*  
-> Habnetic Open Research Lab.  
-> https://github.com/Habnetic/resilient-housing-bayes
+If you use this repository, please cite:
+
+> Martínez Mugica, M. (2026). *Resilient Housing Bayes*. Habnetic. https://habnetic.org
 
 ---
 
-## Linked repositories:
-- [Habnetic Data](https://github.com/Habnetic/data)
-- [Habnetic Docs](https://github.com/Habnetic/docs)
-- [Public Site](https://habnetic.org)
+# License
+
+Unless stated otherwise, the contents of this repository are released under the **MIT License**.
+
+The **Habnetic** name, logo, visual identity, and branding assets are **not** covered by the MIT License and may not be reused without permission.
 
 ---
 
-## 🌍 Links
-- 🌐 [Habnetic Website](https://habnetic.org)
-- 🧭 [Habnetic Organization](https://github.com/Habnetic)
-- 📫 Contact: [info@habnetic.org](mailto:info@habnetic.org)
-
----
-
-## License
-
-Unless otherwise stated, the contents of this repository are licensed under the MIT License.
-
-The Habnetic name and logo are not licensed for reuse or endorsement.
-
----
-
-© 2026 Habnetic — Open Research for Resilient Futures
+© 2026 Habnetic — Open research for posterior decision stability.
