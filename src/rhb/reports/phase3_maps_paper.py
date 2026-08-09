@@ -6,7 +6,7 @@ from pathlib import Path
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import pandas as pd
-from matplotlib.colors import Normalize
+from matplotlib.colors import Normalize, PowerNorm
 
 try:
     import osmnx as ox
@@ -30,15 +30,19 @@ BORDERLINE_COL = "borderline_k1000"
 
 BORDERLINE_LOW = 0.2
 BORDERLINE_HIGH = 0.8
-MIN_VISIBLE_TOPK_PROB = 0.08
 
 # Paper palette: restrained enough for print, not dead enough for LaTeX.
 BLACK = "#111111"
-BASE_BUILDINGS = "#B8B8B8"
 WATER_FILL = "#D7EEF2"
 WATER_EDGE = "#9FD7DF"
 BOUNDARY = "#D6453D"
 WHITE = "#FFFFFF"
+
+TOPK_CMAP = "cividis"
+TOPK_NORM = Normalize(
+    vmin=0.2,
+    vmax=1.0,
+)
 
 # Optional manual zoom bounds, in each city's projected CRS.
 # Fill these after inspecting candidate outputs in QGIS / generated citywide maps:
@@ -381,14 +385,11 @@ def clip_to_bounds(
 
 
 def add_probability_layer(gdf: gpd.GeoDataFrame, ax: plt.Axes, zoom: bool = False) -> None:
-    signal = gdf[gdf[TOPK_COL] > MIN_VISIBLE_TOPK_PROB].copy()
-    if signal.empty:
-        return
-    signal.plot(
+    gdf.plot(
         column=TOPK_COL,
         ax=ax,
-        cmap="inferno",
-        norm=Normalize(vmin=MIN_VISIBLE_TOPK_PROB, vmax=1.0),
+        cmap=TOPK_CMAP,
+        norm=TOPK_NORM,
         linewidth=0.02 if not zoom else 0.08,
         edgecolor="none",
         antialiased=False,
@@ -396,7 +397,6 @@ def add_probability_layer(gdf: gpd.GeoDataFrame, ax: plt.Axes, zoom: bool = Fals
         legend=False,
         zorder=2,
     )
-
 
 def add_borderline_layer(gdf: gpd.GeoDataFrame, ax: plt.Axes, zoom: bool = False) -> None:
     borderline = gdf[gdf[BORDERLINE_COL] == 1]
@@ -414,14 +414,19 @@ def add_borderline_layer(gdf: gpd.GeoDataFrame, ax: plt.Axes, zoom: bool = False
 def save_figure(fig: plt.Figure, stem: str) -> list[Path]:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     paths = []
+
     for ext in ["png", "pdf"]:
         path = OUTPUT_DIR / f"{stem}.{ext}"
         kwargs = {"bbox_inches": "tight", "pad_inches": 0.015, "facecolor": WHITE}
+
         if ext == "png":
             kwargs["dpi"] = 450
+
         fig.savefig(path, **kwargs)
         print(f"[maps] saved: {path}")
         paths.append(path)
+
+    plt.close(fig)
     return paths
 
 
@@ -435,22 +440,32 @@ def plot_citywide_topk_map(
     ax.set_facecolor(WHITE)
 
     plot_water(water, ax)
-    gdf.plot(ax=ax, color=BASE_BUILDINGS, linewidth=0, alpha=0.65, zorder=1)
     add_probability_layer(gdf, ax, zoom=False)
     add_borderline_layer(gdf, ax, zoom=False)
+
+    zoom_bounds = get_zoom_bounds(city, gdf)
+    xmin, ymin, xmax, ymax = zoom_bounds
+    ax.plot(
+        [xmin, xmax, xmax, xmin, xmin],
+        [ymin, ymin, ymax, ymax, ymin],
+        color=BLACK,
+        linewidth=0.8,
+        alpha=0.9,
+        zorder=4,
+    )
 
     set_bounds(ax, get_citywide_bounds(city, gdf))
     ax.set_title(f"{city} citywide posterior top-k probability", fontsize=9, loc="left", pad=3)
     ax.axis("off")
 
     sm = plt.cm.ScalarMappable(
-        cmap="inferno",
-        norm=Normalize(vmin=MIN_VISIBLE_TOPK_PROB, vmax=1.0),
+        cmap=TOPK_CMAP,
+        norm=TOPK_NORM,
     )
     sm._A = []
     cbar = fig.colorbar(sm, ax=ax, fraction=0.026, pad=0.01)
     cbar.set_label("P(top-k)", fontsize=8)
-    cbar.set_ticks([0.1, 0.5, 1.0])
+    cbar.set_ticks([0.2, 0.5, 0.8, 1.0])
     cbar.ax.tick_params(labelsize=7)
 
     fig.subplots_adjust(left=0.005, right=0.93, top=0.94, bottom=0.005)
@@ -474,14 +489,11 @@ def plot_boundary_zoom_map(
     ax.set_facecolor(WHITE)
 
     plot_water(zoom_water, ax)
-    zoom_gdf.plot(ax=ax, color=BASE_BUILDINGS, linewidth=0, alpha=0.72, zorder=1)
     add_probability_layer(zoom_gdf, ax, zoom=True)
     add_borderline_layer(zoom_gdf, ax, zoom=True)
 
     set_bounds(ax, zoom_bounds)
 
-    boundary_count = int((zoom_gdf[BORDERLINE_COL] == 1).sum())
-    top_count = int((zoom_gdf[TOPK_COL] > MIN_VISIBLE_TOPK_PROB).sum())
 
     ax.set_title(
         f"{city} local transition structure",
@@ -523,7 +535,6 @@ def plot_citywide_plus_zoom(
     ax0, ax1 = axes
 
     plot_water(water, ax0)
-    gdf.plot(ax=ax0, color=BASE_BUILDINGS, linewidth=0, alpha=0.65, zorder=1)
     add_probability_layer(gdf, ax0, zoom=False)
     add_borderline_layer(gdf, ax0, zoom=False)
     set_bounds(ax0, bounds_with_padding(gdf))
@@ -540,20 +551,19 @@ def plot_citywide_plus_zoom(
     )
 
     plot_water(zoom_water, ax1)
-    zoom_gdf.plot(ax=ax1, color=BASE_BUILDINGS, linewidth=0, alpha=0.72, zorder=1)
     add_probability_layer(zoom_gdf, ax1, zoom=True)
     add_borderline_layer(zoom_gdf, ax1, zoom=True)
     set_bounds(ax1, zoom_bounds)
     ax1.set_title("local transition structure", fontsize=8.5, loc="left", pad=2)
 
     sm = plt.cm.ScalarMappable(
-        cmap="inferno",
-        norm=Normalize(vmin=MIN_VISIBLE_TOPK_PROB, vmax=1.0),
+        cmap=TOPK_CMAP,
+        norm=TOPK_NORM,
     )
     sm._A = []
     cbar = fig.colorbar(sm, ax=axes.ravel().tolist(), fraction=0.022, pad=0.012)
     cbar.set_label("P(top-k)", fontsize=8)
-    cbar.set_ticks([0.1, 0.5, 1.0])
+    cbar.set_ticks([0.2, 0.5, 0.8, 1.0])
     cbar.ax.tick_params(labelsize=7)
 
     fig.suptitle(f"Posterior top-k probability and uncertain boundary — {city}", fontsize=10, y=0.995)
