@@ -343,7 +343,7 @@ def main() -> None:
     # --------------------------------------------------------------
 
     fig, ax = plt.subplots(
-        figsize=(7, 4.5)
+        figsize=(7.2, 4.6)
     )
 
     labels = [
@@ -356,6 +356,30 @@ def main() -> None:
         len(labels)
     )
 
+    order = {
+        "0.10/0.90": 0,
+        "0.20/0.80": 1,
+        "0.25/0.75": 2,
+    }
+
+    styles = {
+        "RTM": {
+            "color": "0.10",
+            "linestyle": "-",
+            "marker": "o",
+        },
+        "HAM": {
+            "color": "0.45",
+            "linestyle": "--",
+            "marker": "s",
+        },
+        "DON": {
+            "color": "0.70",
+            "linestyle": "-.",
+            "marker": "^",
+        },
+    }
+
     for city in CITY_CONFIG:
 
         city_data = (
@@ -364,12 +388,6 @@ def main() -> None:
             ]
             .copy()
         )
-
-        order = {
-            "0.10/0.90": 0,
-            "0.20/0.80": 1,
-            "0.25/0.75": 2,
-        }
 
         city_data["order"] = (
             city_data[
@@ -393,9 +411,10 @@ def main() -> None:
         ax.plot(
             x,
             y,
-            marker="o",
-            linewidth=1.5,
+            linewidth=1.8,
+            markersize=6,
             label=city,
+            **styles[city],
         )
 
     ax.set_xticks(
@@ -411,7 +430,9 @@ def main() -> None:
         "Borderline assets (% of prioritisation capacity k)"
     )
 
-    ax.legend()
+    ax.legend(
+        frameon=True
+    )
 
     fig.tight_layout()
 
