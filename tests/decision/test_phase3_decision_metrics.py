@@ -1,6 +1,6 @@
 import numpy as np
 
-from rhb.decision.phase3_decision_metrics import summarize_decision_metrics
+from rhb.decision.stability import summarize_decision_metrics
 from rhb.decision.topk import compute_topk_membership
 
 
