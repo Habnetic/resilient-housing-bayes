@@ -1,91 +1,49 @@
-# 📘 Resilient Housing Bayes — Documentation
+# Resilient Housing Bayes — Repository Documentation
 
-This repository contains **modeling logic and Bayesian inference workflows** only.
+This repository contains the research code, Bayesian modelling workflows,
+decision-stability analysis, and reproducibility material behind Habnetic.
 
-All canonical definitions, assumptions, and pipeline status documents live outside this repository.
+Canonical project-wide definitions and methodology are maintained in:
 
----
+- `Habnetic/docs` — concepts, methodology, definitions, decisions
+- `Habnetic/data` — canonical datasets and data-processing artifacts
+- `resilient-housing-bayes` — research models, experiments, inference,
+  diagnostics, decision analysis, and reporting code
 
-## 🔗 Canonical Sources (Habnetic Ecosystem)
+## Historical material
 
-### Exposure Definitions
-RTM Water Exposure v0  
-→ `Habnetic/docs/references/exposure/rtm_water_exposure_v0.md`
+The notebooks and archived implementation plans preserve the development
+history of Phases 0–3.
 
-Exposure variables are defined and versioned in the **Habnetic/docs** repository.  
-This repository consumes exposure artifacts but does not define them.
+Some historical notebooks generated intermediate exposure, hazard, and
+synthetic-outcome artifacts inside this repository. These are retained where
+needed for reproducibility and should not be interpreted as the current
+cross-repository architecture.
 
----
+Archived plans are stored under:
 
-### Hazard Definitions
-RTM Pluvial Hazard v1 (ERA5-Land)  
-→ `Habnetic/docs/references/hazard/rtm_pluvial_v1.md`
+```text
+docs/archive/
 
-Hazard semantics, units, aggregation rules, and interpretation constraints are defined upstream.  
-Any change to hazard definition must occur in the docs repository, not here.
+Current development
 
----
+New reusable decision-stability logic should be implemented as testable Python
+modules under src/, while notebooks remain primarily for exploration,
+validation, and documented experiments.
 
-### Data Artifacts
-Produced in: `Habnetic/data`
+Phase-specific scripts belong under:
 
-Key RTM artifacts:
+scripts/<phase>/
 
-- `processed/RTM/priors/building_water_proximity.parquet`
-- `processed/RTM/hazards/pluvial/H_pluvial_v1_grid.nc`
-- `processed/RTM/hazards/pluvial/H_pluvial_v1_buildings.parquet`
+Generated outputs should not normally be committed unless they are explicitly
+required for reproducibility.
 
-This repository reads those artifacts but does not generate them.
 
----
+For the root `README.md`, I would **not yet rewrite the whole thing manually in this step**. First finish the structural move. Then we rewrite it based on the actual final tree, because otherwise we get to update the README twice, which is apparently how civilizations collapse.
 
-## 🧠 Scope of This Repository
+So now do:
 
-This repository is responsible for:
+```powershell
+New-Item -ItemType Directory -Force scripts\phase3
+git mv prepare_phase3_qgis_layers.py scripts\phase3\prepare_qgis_layers.py
 
-- Constructing generative Bayesian models
-- Defining likelihoods
-- Performing inference (PyMC / ArviZ)
-- Running posterior predictive checks
-- Computing decision-level quantities (ranking stability, top-k probability, etc.)
-
-It is **not responsible for**:
-
-- Data normalization
-- Hazard computation
-- Exposure definition
-- CRS policy
-- Pipeline orchestration
-
----
-
-## 📂 Notebook Structure
-
-1. Data exploration (EDA of priors + hazard)
-2. Synthetic generation (prior predictive reasoning)
-3. Model definition (generative structure)
-4. Inference and validation
-5. Visualization and communication
-
-Skipping steps is discouraged.
-
----
-
-## 🧩 Architectural Principle
-
-Separation of concerns:
-
-- **Habnetic/docs** → Definitions, semantics, interpretation constraints  
-- **Habnetic/data** → Raw + processed datasets and hazard generation  
-- **resilient-housing-bayes** → Bayesian modeling and inference  
-
-This separation ensures:
-
-- Reproducibility  
-- Version clarity  
-- Explicit phase boundaries  
-- No hidden semantic drift  
-
----
-
-If something appears undefined here, it is probably defined upstream.
