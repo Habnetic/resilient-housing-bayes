@@ -267,7 +267,7 @@ def plot_cross_city(cities_df: dict[str, pd.DataFrame]) -> None:
 
     axes[0].set_ylabel("P(in top set)")
 
-    fig.suptitle("Same decision-stability structure across cities", y=1.08)
+    fig.suptitle("Posterior decision-stability structure across cities", y=1.08)
     fig.tight_layout()
     save(fig, "04_cross_city_probability_structure")
 

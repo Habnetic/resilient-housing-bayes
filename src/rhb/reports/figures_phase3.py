@@ -443,7 +443,7 @@ def plot_cross_city_probability_structure(cities_df: dict[str, pd.DataFrame], ou
         )
 
     axes[0].set_ylabel("P(asset in Top-k)")
-    fig.suptitle("Same decision-stability structure across cities", fontsize=11, weight="bold", y=1.05)
+    fig.suptitle("Posterior decision-stability structure across cities", fontsize=11, weight="bold", y=1.05)
     fig.tight_layout()
     save_figure(fig, output_dir, "04_cross_city_probability_structure")
 
@@ -485,7 +485,7 @@ def plot_cross_city_stability_structure(cities_df: dict[str, pd.DataFrame], outp
         clean_axis(ax, grid=False)
 
     axes[0].set_ylabel("P(asset in Top-k)")
-    fig.suptitle("Same decision-stability structure across cities", fontsize=11, weight="bold", y=1.05)
+    fig.suptitle("Posterior decision-stability structure across cities", fontsize=11, weight="bold", y=1.05)
     fig.tight_layout()
     save_figure(fig, output_dir, "phase3_cross_city_stability_structure")
 
@@ -575,7 +575,7 @@ def plot_borderline_share_vs_k(base_path: Path, output_dir: Path, cities: list[s
     ax.text(
         0.5,
         1.01,
-        "Including under fixed-specification cross-city transfer",
+        "Fixed-specification cross-city stress test",
         transform=ax.transAxes,
         ha="center",
         va="bottom",
