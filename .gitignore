@@ -1,15 +1,26 @@
-# Python bytecode / caches
+# =========================
+# Python
+# =========================
+
 __pycache__/
 *.py[codz]
 *.so
 
+
+# =========================
 # Virtual environments
+# =========================
+
 .venv/
 venv/
 env/
 ENV/
 
+
+# =========================
 # Test / tooling caches
+# =========================
+
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
@@ -17,40 +28,111 @@ ENV/
 .coverage.*
 htmlcov/
 
-# Jupyter / PyTensor caches
+
+# =========================
+# Jupyter / PyTensor
+# =========================
+
 .ipynb_checkpoints/
 notebooks/pytensor_cache/
 
+
+# =========================
 # IDE / editor files
+# =========================
+
 .vscode/
 .idea/
 *.swp
 
+
+# =========================
 # OS metadata
+# =========================
+
 .DS_Store
 Thumbs.db
 
-# Local application/cache data
+
+# =========================
+# Local application caches
+# =========================
+
 cache/
 
+
+# =========================
 # Build / packaging artifacts
+# =========================
+
 build/
 dist/
 *.egg-info/
 
+
+# =========================
 # Local environment files
+# =========================
+
 .env
 .envrc
 
+
+# =========================
 # Model runs
+# =========================
+
 runs/
 
+
+# =========================
+# Large generated scientific files
+# =========================
+
+*.nc
+
+
+# =========================
 # Project outputs
-# Ignore generated outputs by default.
+# Generated outputs are ignored by default.
+# =========================
+
 outputs/**
 
+
+# =========================
+# Historical RTM reproducibility artifacts
+#
+# These files support the Phase 0-2 notebook chain
+# and are intentionally versioned.
+# =========================
+
+!outputs/rtm/
+!outputs/rtm/hazards/
+!outputs/rtm/phase0_inference/
+
+!outputs/rtm/hazard_pluvial_v0.parquet
+!outputs/rtm/outcome_damage_v0.parquet
+!outputs/rtm/outcome_damage_v0_meta.json
+!outputs/rtm/water_exposure_Ehat_v0.parquet
+!outputs/rtm/water_exposure_Ehat_v0_stats.json
+
+!outputs/rtm/hazards/rtm_pluvial_v1_ingestion_stats.json
+!outputs/rtm/hazards/rtm_pluvial_v1_ingestion_stats.md
+
+!outputs/rtm/phase0_inference/README.md
+!outputs/rtm/phase0_inference/posterior_summary.csv
+!outputs/rtm/phase0_inference/ppc_damage_v0.png
+!outputs/rtm/phase0_inference/sampler_config.json
+
+
+# =========================
 # Phase 3 reproducibility inputs
-# These processed model-input tables are intentionally versioned.
+#
+# These processed model-input tables are
+# referenced by the Phase 3 paper.
+# =========================
+
 !outputs/phase3/
 !outputs/phase3/RTM/
 !outputs/phase3/HAM/
@@ -60,6 +142,8 @@ outputs/**
 !outputs/phase3/HAM/phase3_features_scaled.parquet
 !outputs/phase3/DON/phase3_features_scaled.parquet
 
-# Large / generated scientific outputs
-*.nc
-*.png
+# =========================
+# Generated figure previews
+# =========================
+
+figures/*.png
