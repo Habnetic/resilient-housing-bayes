@@ -147,3 +147,11 @@ outputs/**
 # =========================
 
 figures/*.png
+
+# =========================
+# Notebook-generated figures
+# =========================
+
+notebooks/*.pdf
+notebooks/*.svg
+notebooks/figures/
