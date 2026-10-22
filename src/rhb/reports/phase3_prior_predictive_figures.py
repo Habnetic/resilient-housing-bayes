@@ -8,7 +8,6 @@ import numpy as np
 
 
 CITIES = ["RTM", "HAM", "DON"]
-PROFILE = "low_event_weakly_informative"
 
 
 def project_root() -> Path:
@@ -24,13 +23,31 @@ def main() -> None:
 
     for city in CITIES:
         city_dir = root / "outputs" / "phase3" / city
-        candidates = list(city_dir.glob(f"prior_predictive_summary_*{PROFILE}*.json"))
-        if not candidates:
-            print(f"[skip] no prior predictive summary for {city}")
-            continue
 
-        path = candidates[0]
+        # Use the baseline priors from the main Phase 3 model
+        path = city_dir / "prior_predictive_summary.json"
+
+        if not path.exists():
+            raise FileNotFoundError(
+                f"Missing baseline prior predictive summary: {path}"
+            )
+
         data = json.loads(path.read_text(encoding="utf-8"))
+
+        # Verify consistency with the published Bayesian model
+        expected_priors = {
+            "Normal(0, 2.5)",
+            "Normal(0.0, 2.5)",
+        }
+
+        for parameter in ("alpha", "beta_E", "beta_H"):
+            actual = data.get("priors", {}).get(parameter)
+
+            if actual not in expected_priors:
+                raise ValueError(
+                    f"Unexpected prior for {parameter} in {path}: {actual}"
+                )
+
         er = data["prior_event_rate_percentiles"]
 
         rows.append(
@@ -64,14 +81,14 @@ def main() -> None:
         yerr=[med - lo, hi - med],
         fmt="o",
         capsize=4,
-        label="Prior predictive event rate, p05–p95",
+        label="Prior-implied mean event probability (P5-P95)",
     )
     ax.scatter(x, obs, marker="x", label="Observed synthetic event rate")
 
     ax.set_xticks(x)
     ax.set_xticklabels([r["city"] for r in rows])
-    ax.set_ylabel("Event rate")
-    ax.set_title("Prior predictive event-rate check")
+    ax.set_ylabel("Mean event probability / event rate")
+    ax.set_title("Prior-implied event rate (baseline priors)")
     ax.legend()
     ax.grid(True, alpha=0.3)
 

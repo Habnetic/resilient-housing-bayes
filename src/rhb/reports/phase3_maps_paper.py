@@ -25,8 +25,14 @@ GEOMETRY_PATHS = {
     "DON": ("derived", "buildings_don.gpkg"),
 }
 
-TOPK_COL = "topk_prob_k1000"
-BORDERLINE_COL = "borderline_k1000"
+PAPER_K = {
+    "RTM": 2213,
+    "HAM": 3415,
+    "DON": 78,
+}
+
+TOPK_COL = "topk_prob_paper"
+BORDERLINE_COL = "borderline_paper"
 
 BORDERLINE_LOW = 0.2
 BORDERLINE_HIGH = 0.8
@@ -64,10 +70,10 @@ ZOOM_BOUNDS = {
     ),
 
     "DON": (
-        580052.0267986986,
-        4794535.501698487,
-        581438.974184864,
-        4795404.671949442,
+        583931.72,
+        4793125.21,
+        585318.66,
+        4793994.38,
     ),
 }
 
@@ -83,7 +89,7 @@ CITYWIDE_BOUNDS = {
 
     "DON": (
         579370.3635517282,
-        4793876.048668751,
+        4792900.0,
         586668.9002346192,
         4798449.885444063,
     ),
@@ -168,13 +174,12 @@ def load_city_geodata(city: str) -> gpd.GeoDataFrame:
         if "bldg_id" not in df.columns:
             raise KeyError(f"{name} missing bldg_id")
 
-    topk_col = TOPK_COL
-    if TOPK_COL not in metrics.columns:
-        candidates = sorted(c for c in metrics.columns if c.startswith("topk_prob_k"))
-        if not candidates:
-            raise KeyError(f"No top-k probability columns found in {asset_metrics_path}")
-        topk_col = candidates[0]
-        print(f"[maps] warning: {TOPK_COL} missing for {city}; using {topk_col}")
+    topk_col = f"topk_prob_k{PAPER_K[city]}"
+
+    if topk_col not in metrics.columns:
+        raise KeyError(
+            f"{city}: Required probability column missing: {topk_col}"
+        )
 
     feature_cols = [
         "bldg_id",
@@ -185,9 +190,11 @@ def load_city_geodata(city: str) -> gpd.GeoDataFrame:
     ]
     feature_cols = [c for c in feature_cols if c in features.columns]
 
-    metrics_small = metrics[["bldg_id", topk_col]].copy()
-    if topk_col != TOPK_COL:
-        metrics_small = metrics_small.rename(columns={topk_col: TOPK_COL})
+    metrics_small = metrics[
+        ["bldg_id", topk_col]
+    ].rename(
+        columns={topk_col: TOPK_COL}
+    ).copy()
 
     df = features[feature_cols].merge(metrics_small, on="bldg_id", how="inner")
     df[BORDERLINE_COL] = (
@@ -199,6 +206,23 @@ def load_city_geodata(city: str) -> gpd.GeoDataFrame:
         raise ValueError(f"Join produced empty GeoDataFrame for {city}")
 
     print(f"[maps] joined rows for {city}: {len(gdf):,}")
+    expected_k = PAPER_K[city]
+    probability_sum = float(gdf[TOPK_COL].sum())
+
+    assert len(gdf) == len(metrics), (
+        f"{city}: Missing buildings after spatial join"
+    )
+
+    assert abs(probability_sum - expected_k) < 0.5, (
+        f"{city}: Invalid probability sum: {probability_sum}"
+    )
+
+    print(
+        f"[maps] {city}: "
+        f"k={expected_k}, "
+        f"assets={len(gdf):,}, "
+        f"sum(P)={probability_sum:.2f}"
+    )
     return gdf
 
 

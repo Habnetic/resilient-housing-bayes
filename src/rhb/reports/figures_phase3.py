@@ -230,16 +230,16 @@ def pct(x: float, digits: int = 2) -> str:
     return f"{100 * x:.{digits}f}%"
 
 
-def _find_prior_summary_path(city_dir: Path) -> Path | None:
-    """Prefer low-event prior predictive summary when present, else any summary."""
-    preferred = city_dir / "prior_predictive_summary_low_event_weakly_informative.json"
-    if preferred.exists():
-        return preferred
-    generic = city_dir / "prior_predictive_summary.json"
-    if generic.exists():
-        return generic
-    matches = sorted(city_dir.glob("prior_predictive_summary*.json"))
-    return matches[0] if matches else None
+def _find_prior_summary_path(city_dir: Path) -> Path:
+    """Load the baseline prior predictive summary used by the main model."""
+    path = city_dir / "prior_predictive_summary.json"
+
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Missing baseline prior predictive summary: {path}"
+        )
+
+    return path
 
 
 def plot_prior_predictive_event_rate(base_path: Path, output_dir: Path) -> None:
@@ -252,6 +252,18 @@ def plot_prior_predictive_event_rate(base_path: Path, output_dir: Path) -> None:
             return
         with path.open("r", encoding="utf-8") as f:
             data = json.load(f)
+            expected_priors = {
+                "Normal(0, 2.5)",
+                "Normal(0.0, 2.5)",
+            }
+
+            for parameter in ("alpha", "beta_E", "beta_H"):
+                actual = data.get("priors", {}).get(parameter)
+
+                if actual not in expected_priors:
+                    raise ValueError(
+                        f"Unexpected prior for {parameter} in {path}: {actual}"
+                    )
         event = data.get("prior_event_rate_percentiles", {})
         rows.append(
             {
@@ -277,7 +289,7 @@ def plot_prior_predictive_event_rate(base_path: Path, output_dir: Path) -> None:
         ecolor=MID,
         elinewidth=1.2,
         capsize=3,
-        label="Prior predictive event rate, p05--p95",
+        label="Prior expected event rate, p5--p95",
     )
     ax.scatter(
         x,
@@ -290,8 +302,8 @@ def plot_prior_predictive_event_rate(base_path: Path, output_dir: Path) -> None:
     )
     ax.set_xticks(x)
     ax.set_xticklabels(df["city"])
-    ax.set_ylabel("Event rate")
-    ax.set_title("Prior predictive event-rate check")
+    ax.set_ylabel("Mean event probability")
+    ax.set_title("Prior-implied event rate (baseline priors)")
     ax.legend(frameon=False, loc="upper left")
     clean_axis(ax, grid=True)
     fig.tight_layout()
