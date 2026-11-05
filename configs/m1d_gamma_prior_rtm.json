@@ -1,0 +1,9 @@
+{
+  "experiment": "M1-D1",
+  "version": "0.1",
+  "city": "RTM",
+  "source_experiment": "M1-C",
+  "baseline_gamma_prior_sigma": 0.5,
+  "gamma_prior_sigmas": [0.25, 0.5, 1.0],
+  "description": "One-factor-at-a-time gamma prior-width sensitivity, reusing M1-C fixed data and baseline."
+}
