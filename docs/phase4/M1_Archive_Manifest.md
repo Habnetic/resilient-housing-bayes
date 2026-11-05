@@ -1,6 +1,6 @@
 # Habnetic | Phase 4 M1 Archive Manifest
 
-**Status:** Local archive verified; durable off-machine storage pending confirmation.
+**Status:** Local archive verified; off-machine backup uploaded to Google Drive on 2026-11-05 (user-confirmed).
 **Manifest generated (UTC):** 2026-11-05T22:43:23Z
 **Closure commit:** `f2b1a8d`
 **Repository HEAD when verified:** `f2b1a8d`
@@ -50,5 +50,16 @@ These input Parquet files are **not** included in the M1 output ZIP. Preserve se
 - Durable storage (Drive / research archive): **NOT YET RECORDED**. Add an immutable location and recheck the uploaded SHA-256 before claiming durable preservation.
 - Source datasets: **NOT BACKED UP BY THIS MANIFEST**. Their hashes identify versions; preserve the bytes separately.
 - Permanent tag `phase4-m1-complete-v1.0`: create only after the durable archive and required inputs are preserved and verified.
+
+## Off-machine backup
+
+- Destination: Google Drive / Habnetic / Research Archives / Phase4 / M1_v1.0/
+- Upload confirmed: 2026-11-05.
+- Files:
+  - Habnetic_Phase4_M1_Outputs_v1.0.zip
+  - phase3_features_scaled.parquet
+  - terrain_features_m1_5m.parquet
+- Local archive integrity: SHA-256 verified.
+- Remote integrity: Files uploaded; downloaded copies have not been independently hash-verified.
 
 **What to test next:** HAM/DON feature portability and cross-city transfer are separate research checkpoints, not demonstrated by this archive.
