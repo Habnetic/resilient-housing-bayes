@@ -1,0 +1,19 @@
+{
+  "experiment": "M1-D2",
+  "version": "0.1",
+  "city": "RTM",
+  "source_experiment": "M1-C",
+  "reference_prior_id": "P0",
+  "fixed_beta_sigma": 2.5,
+  "fixed_gamma_sigma": 0.5,
+  "prior_draws": 2000,
+  "prior_batch_size": 100,
+  "prior_seed": 20261105,
+  "intercept_priors": [
+    {"id": "P0", "label": "Phase 3 reference", "mean": 0.0, "sigma": 2.5, "role": "frozen_reference"},
+    {"id": "P1", "label": "Generator-centred, moderate", "mean": -3.0, "sigma": 1.0, "role": "oracle_centred_synthetic"},
+    {"id": "P2", "label": "Generator-centred, concentrated", "mean": -3.0, "sigma": 0.5, "role": "oracle_centred_synthetic"},
+    {"id": "P3", "label": "Deliberately shifted centre", "mean": -1.5, "sigma": 1.0, "role": "misspecification_stress_test"}
+  ],
+  "description": "Controlled synthetic intercept-prior sensitivity. Run the prior predictive audit first. Oracle-centred alternatives are not empirically justified priors."
+}
