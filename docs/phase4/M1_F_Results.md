@@ -1,7 +1,7 @@
 # Habnetic | Phase 4 M1-F: Population robustness results
 
-**Version:** 0.2.0, 5 November 2026<br>
-**Status:** Full synthetic experiment and numerical aggregation completed. **Draft pending final M1-F diagnostic and sampling-manifest audit.** No geographical or empirical flood-risk validation is claimed.<br>
+**Version:** 0.3.0, 5 November 2026<br>
+**Status:** **ACCEPTED as an exploratory within-Rotterdam synthetic population-robustness experiment.** Full-run numeric diagnostic audit and independent population-ID integrity verification completed on 5 November 2026. One low-tail-ESS fit is retained with an explicit warning; source-manifest hash verification, asset-level exception review, and independent archival remain open. No geographical or empirical flood-risk validation is claimed.<br>
 **Protocol:** `docs/phase4/M1_F_Experimental_Protocol.md`<br>
 **Implementation:** `src/rhb/experiments/m1f_population_sampling.py`, `src/rhb/pipelines/run_m1f.py`, `src/rhb/pipelines/summarize_m1f.py`<br>
 **Generated evidence:** `outputs/phase4/RTM/m1f/` (Git-ignored). The numbers below were transcribed from the full-run summary tables reported on 5 November 2026; use the generated CSVs and manifests as the recalculable source.
@@ -10,7 +10,7 @@
 
 Does the conditional synthetic decision benefit of adding a measured topographic feature persist when the underlying set of Rotterdam buildings changes, rather than merely when synthetic Bernoulli outcomes are regenerated on one fixed sample?
 
-- **Universe:** Rotterdam assets with measured 5 m terrain features. The sampling protocol requires 220,456 measured assets, exclusion of all 5,000 M1-C buildings, and three new **mutually disjoint** samples (`pop01`, `pop02`, `pop03`) of 5,000 buildings each. These conditions are enforced by the generation code; final manifest/ID verification is an outstanding sign-off item below.
+- **Universe:** Rotterdam assets with measured 5 m terrain features. The sampling protocol requires 220,456 measured assets, exclusion of all 5,000 M1-C buildings, and three new **mutually disjoint** samples (`pop01`, `pop02`, `pop03`) of 5,000 buildings each. The generator enforces these conditions, and the separate post-run integrity script independently verified the selected IDs and splits (Section 6). The complete source-manifest hash chain has not been independently inspected.
 - **Split:** 4,000 train and 1,000 held-out test buildings per population. The same assets and split are retained across the two true-effect levels and outcome seeds within a population.
 - **Generative story:** `Y_i ~ Bernoulli(p_true_i)` with `logit(p_true_i) = -3 + E_i + H_i + gamma_true * T_i`, `T_i = asinh(T50_i / 0.5 m)`, and `gamma_true in {0, -0.8}`. Synthetic outcomes are produced using seeds 101 and 202 per population, with paired random uniforms across effect levels.
 - **Likelihood:** Bayesian Bernoulli-logistic models: B0 uses exposure E and hazard H; B1 adds topography T.
@@ -74,23 +74,35 @@ Selection changes near the top-10 boundary should not automatically be attribute
 
 ## 5. Prior predictive, PPC and sampling diagnostics
 
-**Prior predictive limitation:** M1-F retains the original diffuse Phase 3 / M1-C priors. In the `pop01` smoke cases, B1 prior predictive median aggregate event rates were approximately 0.614 (`gamma=0`) and 0.486 (`gamma=-0.8`), versus observed synthetic training rates 0.063 and 0.065. These are smoke-case figures only. M1-D2 established that intercept-prior changes can improve prior predictive plausibility without establishing a universally superior decision prior. Do not present M1-F priors as independently calibrated.
+**Prior predictive limitation:** M1-F retains the original diffuse Phase 3 / M1-C priors. In the `pop01` smoke cases, B1 prior predictive median aggregate event rates were approximately 0.614 (`gamma=0`) and 0.486 (`gamma=-0.8`), versus observed synthetic training rates 0.063 and 0.065. These are smoke-case figures only. M1-D2 showed that intercept-prior alternatives can improve prior predictive plausibility without establishing a universally superior decision prior. Do not present M1-F priors as independently calibrated.
 
-**Posterior predictive:** In the same smoke cases, posterior predictive median aggregate event rates matched the training-event rates closely (0.063 and 0.065). Aggregate event-rate agreement is only a partial PPC. The full fit summaries also contain corresponding checks; their complete quantiles have not been independently reviewed for this document.
+**Posterior predictive:** In the same smoke cases, posterior predictive median aggregate event rates matched the training-event rates closely (0.063 and 0.065). Aggregate event-rate agreement is only a partial PPC. Full fit records contain further information that has not been independently checked here.
 
-**Full-run MCMC diagnostics: AUDIT PENDING.** The supplied full summary tables establish 12 paired comparisons and the numerical results above, but do **not** display the count/content of `full_summary/diagnostic_flags.csv`. Do not claim that all 24 fits have clean R-hat/ESS/divergence screens until the file has been checked. Registered warnings are max R-hat `>1.01`, bulk or tail ESS `<400`, or any divergence. Any flagged fit requires triage; a decision-sensitive failure may need targeted longer sampling, rather than another indiscriminate experiment grid.
+**Full-run MCMC diagnostics: AUDITED, 1 of 24 fits flagged.** The `full_summary/diagnostic_flags.csv` check identified exactly one exploratory fit with a registered threshold warning:
+
+| Population | True gamma | Outcome seed | Model | R-hat max | Bulk ESS min | Tail ESS min | Divergences | Flag |
+|---|---:|---:|---|---:|---:|---:|---:|---|
+| `pop02` | −0.8 | 202 | B0 | 1.01 | 415 | **331** | 0 | Tail ESS below 400 |
+
+The registered screen flags R-hat `>1.01`, bulk/tail ESS `<400`, or any divergence. This case has **only the tail ESS warning**; no divergences were reported. Its original selected top-10 has **7/10 oracle overlap** and **expected synthetic regret 0.235084**. The low tail ESS does **not** establish that this regret is caused by sampling approximation; B0 omits a terrain effect present in the generator.
+
+**Decision:** Retain this single fit and its warning for the exploratory summary; **do not claim that all 24 fits pass diagnostics**. A targeted four-chain rerun would be appropriate if this specific case later supports a confirmatory claim. A new 24-fit grid is not necessary to preserve the present descriptive result.
 
 ## 6. Data integrity and reproducibility audit
 
-The M1-F generator is designed to enforce unique IDs, 15,000 new selected buildings, exclusion of the 5,000 M1-C assets, a fixed 4,000/1,000 split within each population, identical IDs/splits across effect/seed cases, and no train/test leakage. The runner and summarizer validate stored hashes and result pairing. Nevertheless, **the actual local sampling manifest and exclusion audit have not been supplied in this record**, so formal independent verification remains pending.
+An **independent post-run ID/split integrity check PASSED** on 5 November 2026. It read the stored `population_ids.csv` and the original M1-C scenario Parquet and verified:
 
-Before changing this report to **Fully reviewed**, record the outcomes of:
+- **15,000** unique `bldg_id` values across **three** populations (`pop01`, `pop02`, `pop03`), each with **5,000** buildings.
+- Exactly **4,000 train** and **1,000 test** buildings per population; no duplication across populations (hence no train/test ID overlap between populations).
+- **Zero shared building IDs** with the original M1-C population.
 
-1. `outputs/phase4/RTM/m1f/sampling_manifest.json`: source data, configuration, code and output checksums; three population sizes, 5,000 excluded reference assets.
-2. `outputs/phase4/RTM/m1f/population_ids.csv`: 15,000 distinct IDs, 5,000 per population with 4,000 train and 1,000 test, zero overlap with the M1-C ID set.
-3. `outputs/phase4/RTM/m1f/full_summary/summary_manifest.json`: `scenarios=12`, `fits=24`, and diagnostic flag count; check `full_summary/diagnostic_flags.csv` and `full_fit_results.csv` if needed.
-4. Inspect the **individual pop03, `gamma=0`** negative-control case that increases B1 regret, and consider its decision-boundary sensitivity before treating it as a substantive degradation attributable solely to adding terrain.
-5. Retain a copy of the Git-ignored generated artifacts and their manifests in controlled research storage; Git tracks code and these documents but **not** the posterior results.
+The check verifies stored population IDs and allocation. It does **not** independently validate the upstream raster-to-terrain processing or inspect every manifest checksum. The generated manifest/source hashes and external evidence preservation must remain available for a full independent reproduction.
+
+**Outstanding bounded follow-up:**
+
+1. Confirm source, configuration, code and output checksums in `sampling_manifest.json` and `full_summary/summary_manifest.json` against the actual archived inputs and outputs; the generated files were not supplied for independent hash inspection here.
+2. Inspect the individual `pop03`, `gamma=0` exception (one case where B1 has additional regret) at asset-ID and posterior-mean-rank level. Consider finite-MCMC sensitivity; do not yet assert that the extra regret is solely due to the irrelevant predictor.
+3. Copy/retain the Git-ignored result directories, posterior samples and manifests to versioned research storage. Source code commits do not archive the outputs.
 
 ### How to reproduce
 
@@ -109,6 +121,6 @@ $env:PYTHONPATH = (Resolve-Path .\src).Path
 
 ## 7. Interpretation and decision
 
-**Accepted as a completed exploratory computation; final QA sign-off pending.** The expected benefit of including informative terrain persisted **in mean synthetic regret across all three disjoint new Rotterdam samples**, with 5/6 positive-control wins and one tie. A zero-effect terrain variable gave 5/6 ties and one case with small additional B1 regret. Predictive improvements followed the same conditional direction on average. The experiment tests sensitivity to *population membership within Rotterdam*, not observed flood outcomes, spatially blocked generalization, independent geographical transfer, or actual avoided damage.
+**Accepted as a completed exploratory population-robustness experiment, with an explicitly retained single-fit diagnostic warning and remaining archive/asset-level follow-up.** The expected benefit of including informative terrain persisted **in mean synthetic regret across all three disjoint new Rotterdam samples**, with 5/6 positive-control wins and one tie. A zero-effect terrain variable gave 5/6 ties and one case with small additional B1 regret. Predictive improvements followed the same conditional direction on average. The experiment tests sensitivity to *population membership within Rotterdam*, not observed flood outcomes, spatially blocked generalization, independent geographical transfer, or actual avoided damage.
 
-**What to test next:** Verify the sampling and diagnostic manifests, review the pop03 null-effect exception, and then issue a bounded Rotterdam M1 closure decision. Hamburg and Donostia terrain-feature comparability belongs to the next transfer checkpoint, not to M1-F.
+**What to test next:** Preserve the archived evidence and verify its fingerprints; optionally inspect the pop03 null-effect selection boundary at asset level. No additional model grid is needed for the scoped exploratory M1-F conclusion. Hamburg and Donostia feature comparability belongs to the next transfer checkpoint.

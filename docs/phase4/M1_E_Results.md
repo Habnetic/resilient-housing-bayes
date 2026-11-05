@@ -1,11 +1,11 @@
 # Habnetic | Phase 4 M1-E: Computational confirmation results
 
-**Version:** 0.2.0, 5 November 2026<br>
-**Status:** Nine refits and the automated summary completed; three originally flagged traces visually reviewed; **six boundary trace plots still require individual visual inspection** before final sign-off. Exploratory computational confirmation, not empirical flood-risk validation.<br>
+**Version:** 0.3.0, 5 November 2026<br>
+**Status:** **COMPLETE within the targeted exploratory computational-confirmation scope**. Nine four-chain refits satisfy the numerical screening thresholds; **all nine trace plots visually reviewed** (three flagged-case plots and six boundary plots). Not empirical flood-risk validation.<br>
 **Protocol:** `docs/phase4/M1_E_Experimental_Protocol.md`<br>
 **Configuration:** `configs/m1e_computational_confirmation_rtm.json`<br>
 **Implementation:** `src/rhb/pipelines/run_m1e.py`, `src/rhb/pipelines/summarize_m1e.py`, `src/rhb/pipelines/m1e_checks.py`<br>
-**Evidence:** `outputs/phase4/RTM/m1e/` (Git-ignored; preserve the source artifacts and manifests). This report records the actual terminal output and the three user-supplied trace plots reviewed on 5 November 2026; it does not invent unseen fit-level scores or input hashes.
+**Evidence:** `outputs/phase4/RTM/m1e/` (Git-ignored; preserve the source artifacts and manifests). This report records the actual terminal output and nine user-supplied trace plots reviewed on 5 November 2026; it does not invent unseen fit-level scores or input hashes.
 
 ## Research question
 
@@ -91,17 +91,23 @@ All **six** boundary refits returned synthetic expected regret **0.0204055404959
 
 ## 4. Visual trace review
 
-Three trace plots supplied to the research log have been visually inspected:
+All **nine** available confirmation trace plots were individually inspected from the supplied images on **5 November 2026**. This is a visual assessment of the displayed trace and density panels, supported by the numerical diagnostics in Section 2; it does not prove perfect sampling or model adequacy.
 
-| Fit | Review | Observations |
+| Fit | Visual status | Observations |
 |---|---|---|
-| M1-C B0, gamma -0.8, seed 404 | **Pass (visual)** | Four overlapping chains, stationary-looking traces, no obvious stuck chains; beta_H posterior diffuse |
-| M1-C B1, gamma -0.8, seed 101 | **Pass (visual)** | No visible drift or persistent chain separation; beta_H broad, gamma_T negative |
-| M1-D2 P2, gamma -0.8, seed 505 | **Pass (visual)** | Density and trace behaviour broadly consistent across chains; beta_H remains diffuse |
+| M1-C B0, `gamma=-0.8`, seed 404 | **PASS** | Chain traces show no sustained trends or sticking; overlapping marginal densities; `beta_H` remains diffuse. |
+| M1-C B1, `gamma=-0.8`, seed 101 | **PASS** | No obvious persistent chain separation or drift; negative `gamma_T` posterior; `beta_H` broad. |
+| M1-D2 P2, `gamma=-0.8`, seed 505 | **PASS** | Comparable densities and stationary-looking traces across chains. |
+| Boundary P0, `gamma=-0.4`, seed 101, repeat 1 | **PASS** | Four traces mix without visible long-term trends or persistent sticking. |
+| Boundary P0, `gamma=-0.4`, seed 101, repeat 2 | **PASS** | Traces and densities broadly agree across chains; no visible chain separation. |
+| Boundary P1, `gamma=-0.4`, seed 101, repeat 1 | **PASS** | Overlapping density estimates, stationary-looking traces; modest `beta_H` density variation. |
+| Boundary P1, `gamma=-0.4`, seed 101, repeat 2 | **PASS** | No visible drift; minor between-chain density differences without evident trapping. |
+| Boundary P2, `gamma=-0.4`, seed 101, repeat 1 | **PASS** | Good apparent mixing and stable-looking trace bands. |
+| Boundary P2, `gamma=-0.4`, seed 101, repeat 2 | **PASS** | Comparable marginal distributions; no obvious problematic trends or sticking. |
 
-The **six boundary trace images exist**, but their individual visual review has **not** been recorded. The automated summaries alone cannot replace that inspection. Complete and record it before changing the document status to *fully reviewed*.
+All six boundary plots were supplied and reviewed as separate images; **no additional M1-E model fits are required** by the predefined computational confirmation. Some rendered parameter labels overlap, a plotting-layout defect with no observed bearing on sampling.
 
-**Scientific caution:** `H_pluvial_v1_logrel` had a training SD of only about **0.007618**; a broad `beta_H` posterior is compatible with poor identification despite excellent R-hat/ESS. This is a covariate/parameter-scale problem, **not** itself an MCMC convergence warning.
+**Scientific caution:** The training SD of `H_pluvial_v1_logrel` was approximately **0.007618**. A diffuse `beta_H` posterior remains compatible with weak information about that coefficient despite satisfactory R-hat, ESS, and traces. This is a covariate-scale/identification limitation, not itself an MCMC convergence warning.
 
 ## 5. Predictive checks and limits of the present evidence
 
@@ -129,10 +135,10 @@ $env:PYTHONPATH = (Resolve-Path .\src).Path
 
 **Input sources:** original M1-C scenario parquet/fit artifacts, M1-D2 audit manifest and referenced fit artifacts, M1-E config. **Generated evidence:** `outputs/phase4/RTM/m1e/reference_audit.csv`, `reference_audit_manifest.json`, `full_results.csv`, `full_manifest.json`, `full_summary/{fit_diagnostics.csv,boundary_comparisons.csv,diagnostic_flags.csv,summary_manifest.json}`, and nine NetCDF/trace/decision fit directories under `fits/`. Preserve files and manifest hashes in separately controlled research storage because `outputs/**` is Git-ignored.
 
-**Required remaining QA:** (1) visually inspect six boundary trace plots; (2) rerun the nine M1-E tests under the project-local Python 3.11 executable (earlier passing output used the sibling Python 3.8 environment); (3) check source/result manifest hashes and extract the original-versus-confirmed swapped asset IDs if a detailed boundary narrative is to be published.
+**QA recorded:** (1) All nine traces visually inspected and passed on 5 November 2026; (2) nine M1-E tests passed under `./.venv/Scripts/python.exe` in the project-local environment; (3) nine four-chain refits passed the registered numerical screens. **Residual reproducibility tasks (not claimed complete):** independently verify the stored source/result manifest hashes and preserve artifacts outside Git-ignored output folders; extract the original-versus-confirmed swapped building IDs only if publishing an asset-level boundary narrative.
 
 ## Decision
 
-**M1-E computational results accepted for targeted exploratory confirmation**, with 9/9 numerically passing refits and a reproduced common selection across both independent boundary repeats. The original M1-D2 claim of a prior-induced boundary swap is **downgraded to an unconfirmed exploratory observation**. Full documentation sign-off remains contingent on the limited manual QA items above. M1-F population robustness remains a separate experiment.
+**M1-E COMPLETE within its targeted exploratory computational-confirmation scope.** Nine of nine refits pass the numerical screens, all nine trace plots pass visual review, and six independently sampled boundary refits reproduce one common top-10 selection. The original M1-D2 apparent intercept-prior selection difference remains a historical result but **is not confirmed** by longer MCMC. This sign-off does not verify artifact archiving, identify the exact swapped assets, or establish empirical flood validity. M1-F has since separately tested population-membership sensitivity.
 
-**What to test next:** Close the remaining trace review and provenance QA; then run a small, preregistered M1-F population/split sensitivity study. Do not expand the intercept-prior grid without a specific new hypothesis.
+**What to test next:** Preserve and verify the M1-E artifacts/manifest hashes as part of the M1 evidence archive. M1-F population-robustness computation is already complete; any further sampling-precision or asset-level boundary study needs a new, explicit research question.

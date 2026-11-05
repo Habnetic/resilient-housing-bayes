@@ -1,14 +1,14 @@
 # Habnetic | Phase 4 M1: Rotterdam topographic integration and controlled synthetic validation
 
-**Version:** 0.1.0, 5 November 2026<br>
-**Status:** **PROVISIONAL CLOSURE REVIEW**. The experimental cycle M1-A through M1-F is executed and documented, but the final M1-F diagnostics/provenance audit and limited M1-E visual QA are not yet signed off. Do not relabel this document *fully closed* until the gate in Section 6 is satisfied.<br>
+**Version:** 0.2.0, 5 November 2026<br>
+**Status:** **SCIENTIFIC M1 CLOSURE ACCEPTED for the bounded exploratory synthetic methodology milestone.** Numerical M1-F diagnostic triage, independent population-ID checks and all nine M1-E trace reviews are complete. **Formal evidence-archive/fingerprint sign-off remains open**, together with optional asset-level examination of an isolated null-control exception. Do not interpret scientific acceptance as a completed archival freeze or empirical flood validation.<br>
 **Study area:** Rotterdam (RTM). **Evidence class:** observed geospatial terrain/exposure covariates with synthetic Bernoulli outcome and synthetic oracle-based decision evaluation. **Not** empirical flood-loss validation.
 
 ## Executive decision
 
 The Rotterdam M1 research programme has completed a coherent sequence of controlled experiments: a measured topographic feature was integrated into the building-level covariates; negative and positive synthetic controls were run; outcome replications and coefficient/intercept prior sensitivity were explored; numerical convergence and an apparent prior-induced boundary swap were tested with longer sampling; and the decision comparison was reproduced on three new disjoint Rotterdam building samples.
 
-**Provisional decision:** The *research and computation* of M1 are sufficient for **conditional closure as an exploratory synthetic methodology milestone**. Final sign-off requires the auditable checks listed below. No additional large-scale fit grid is justified by the results currently presented. Closure must **not** be described as validation of real flood losses, physical hazard causality, cost-effective interventions or cross-city transfer.
+**Scientific decision (5 November 2026):** **Accept M1 as complete within its predefined Rotterdam topographic-integration and controlled synthetic-validation scope.** All substantive exploratory experiments, targeted numerical follow-up, recorded visual inspection and independent population-ID integrity checks are complete. One marginal tail-ESS warning remains disclosed. **Operational reproducibility freeze is not yet certified** because off-repository archiving and manifest/hash verification have not been independently signed off. No additional large inference grid is justified for this bounded claim. M1 does **not** validate observed flood losses, hazard causality, intervention effectiveness or cross-city transfer.
 
 ## 1. Definition of M1 and what was actually delivered
 
@@ -31,8 +31,8 @@ The Rotterdam M1 research programme has completed a coherent sequence of control
 | M1-C | Replicate synthetic outcomes on one fixed 5,000-building sample | At `gamma=-0.4` and `-0.8`, mean B1-vs-B0 regret reductions were about 85.7% and 98.7%, respectively; at `gamma=0`, the models tied on selection regret. Five outcome seeds per effect are *not* population replicates. |
 | M1-D1 | Change the prior width on the terrain coefficient | Prior width changes coefficient shrinkage and some top-10 decisions; closest parameter recovery is not always lowest oracle regret. Five seeds per condition are exploratory. |
 | M1-D2 | Change the intercept prior and audit prior predictive distributions | Priors centred on the known synthetic intercept made prior predictive rates more plausible; posterior estimates and most selections changed little. The originally observed isolated P0/P1/P2 swap was later *not reproduced* under longer MCMC; retain the historical numbers but downgrade the original interpretation. |
-| M1-E | Targeted computational confirmation of flagged fits and prior-sensitive boundary | Nine four-chain refits: **zero diagnostic flags and divergences**; six independent boundary fits gave identical top-10 selections. Three originally flagged trace plots were visually reviewed; six boundary traces remain pending individual sign-off. |
-| **M1-F** | Vary population membership within RTM | Three new disjoint 5,000-building samples, two outcomes per effect/population. At `gamma=-0.8`, B1 improved mean oracle regret in **all three** populations (5 wins, 1 tie over six cases); at `gamma=0`, 5 ties and 1 B1 disadvantage. **M1-F numeric diagnostics and ID/provenance checks remain to be signed off.** |
+| M1-E | Targeted computational confirmation of flagged fits and prior-sensitive boundary | Nine four-chain refits: **zero diagnostic flags and divergences**; six independent boundary fits gave identical top-10 selections. All nine confirmation trace plots were individually visually inspected and passed screening; the original boundary swap did not reproduce. |
+| **M1-F** | Vary population membership within RTM | Three new disjoint 5,000-building samples, two outcomes per effect/population. At `gamma=-0.8`, B1 improved mean oracle regret in **all three** populations (5 wins, 1 tie over six cases); at `gamma=0`, 5 ties and 1 B1 disadvantage. **24 fits audited: one B0 tail-ESS warning; independently verified 15,000 unique IDs, disjoint populations and correct splits. Full source-manifest/archival checks remain open.** |
 
 ### M1-F quantitative synthesis
 
@@ -75,7 +75,7 @@ The held-out score comparisons align directionally: for `gamma=-0.8`, mean `ΔEL
 | M1-D1 implementation/results | commits `047d763`, `133d7a7`; `python -m rhb.pipelines.summarize_m1d` |
 | M1-D2 implementation/results | commits `4ed5199`, `e9f9f63`; `python -m rhb.pipelines.summarize_m1d2` |
 | M1-E implementation and revised interpretation | commit `259fac1`; `python -m rhb.pipelines.summarize_m1e` |
-| M1-F implementation/results | **TODO: record exact implementation and report commit IDs after commit.** `python -m rhb.pipelines.summarize_m1f` |
+| M1-F implementation/results | commits `a917e09` (implementation) and `2b2ab89` (results/provisional closure); `python -m rhb.pipelines.summarize_m1f` |
 | RTM terrain data | `../data/runs/rtm_m1_citywide/terrain_features_m1_5m.parquet` |
 | M1-F sampling manifest | `outputs/phase4/RTM/m1f/sampling_manifest.json` |
 | M1-F full fit and summary manifests | `outputs/phase4/RTM/m1f/full_manifest.json`, `full_summary/summary_manifest.json` |
@@ -95,19 +95,27 @@ Full reconstruction of the data snapshot from original raster sources needs the 
 
 ## 6. Closure gate and final classification
 
-The experimental work is **substantially complete**, but formal acceptance is conditional. The responsible reviewer must verify the following before changing the status above to **CLOSED (exploratory synthetic M1)**:
+**Decision classification: CLOSED FOR THE SCOPED EXPLORATORY SCIENTIFIC QUESTION; EVIDENCE-ARCHIVE SIGN-OFF OPEN.** This is a documented scope decision, not a claim that all possible validation tasks are complete. M1 used measured Rotterdam topography but *synthetic* outcomes, and it does not cover empirical floods or transfer.
 
-- [x] The M1-F full summary reports six paired comparisons per effect and 24 model fits in total.
-- [x] The positive-control mean regret improvement is positive in all three new random RTM populations, and the `gamma=0` degradation is disclosed.
-- [x] Held-out predictive comparisons and B1 coefficient recovery are recorded from user-supplied full-run summaries.
-- [ ] Read `full_summary/summary_manifest.json` and `full_summary/diagnostic_flags.csv`; record the exact flag count and follow up on any flagged fits.
-- [ ] Verify `population_ids.csv`, `sampling_manifest.json`, source hashes and exclusion of the original M1-C buildings in the local experiment artifacts.
-- [ ] Inspect the `pop03`, `gamma=0` negative-control exception at case level, including its selected asset IDs and potential finite-MCMC sensitivity.
-- [ ] Individually inspect and record the **six M1-E boundary trace plots** and, if the boundary narrative requires it, the exact original-versus-confirmed P0 swapped IDs.
-- [ ] Archive/manifests: confirm retained posterior artifacts and matching digests outside Git-ignored transient output folders.
-- [ ] Update the two documents' status lines, record M1-F commit IDs, and sign the closure decision in the project decision log.
+### Completed research and QA gates (5 November 2026)
 
-**Provisional decision:** Conditional methodological closure is appropriate once these bounded audit items are completed. If a substantive convergence, provenance or leakage failure is found, investigate that failure rather than treating an attractive aggregate table as proof of success. Do not automatically expand the research design in response to an isolated finite-sample exception.
+- [x] M1-A through M1-F experimental computations completed and documented.
+- [x] M1-F includes 12 paired cases, 24 fitted models, three distinct disjoint Rotterdam samples and the recorded positive/negative controls.
+- [x] B1 positive-control improvement appears in mean synthetic regret in all three new populations; the one null-effect B1 disadvantage is disclosed.
+- [x] Six positive-control coefficient estimates recover mean `gamma=-0.776833`, with the full-run predictive score comparisons recorded (see M1-F report).
+- [x] M1-F full-run diagnostic file inspected: **one flagged fit of 24**, `pop02`, `gamma=-0.8`, seed 202, B0, `ESS_tail=331` against a threshold of 400; `R-hat=1.01`, `ESS_bulk=415`, `divergences=0`. Retained with warning, not reclassified as passing.
+- [x] Independent M1-F population ID audit passed: **15,000 distinct IDs**, three disjoint groups of 5,000, each 4,000 train/1,000 test, and **zero overlap with original M1-C IDs**.
+- [x] M1-E: all nine four-chain confirmation fits satisfy the numerical screens; **all nine trace plots** (three originally flagged and six boundary confirmations) individually reviewed without obvious mixing problems. Six boundary refits return the same top-10.
+- [x] M1-F implementation commit `a917e09` and results/provisional closure commit `2b2ab89` recorded in the evidence ledger.
+
+### Residual operational and narrowly scoped follow-up (not certified complete)
+
+- [ ] Verify the actual source, config, code and output hashes from `sampling_manifest.json`, `full_manifest.json` and `full_summary/summary_manifest.json` against preserved local/archived files. The **ID integrity test passed**; that is not equivalent to complete provenance verification.
+- [ ] Confirm a controlled, retrievable **off-repository archive** for large source data, posterior artifacts, decision outputs, raster inputs and manifests. `outputs/**` is Git-ignored; Git commits alone are insufficient.
+- [ ] Inspect the isolated `pop03`, `gamma=0` negative-control selection at the asset-ID level if a causal/numerical explanation is to be published. Currently it is accurately reported as **one observed exploratory exception**, not attributed conclusively to the predictor or MCMC.
+- [ ] Record the final closure decision and any archive URI/fingerprints in the KnowledgeLab/Notion decision log. A final signed reproducibility tag should follow archive QA rather than precede it.
+
+**Acceptance statement:** The scientifically bounded M1 milestone may now be used as the starting point for HAM/DON terrain-feature portability and subsequent Phase 4 research, **without reopening M1-F**. A final immutable release/tag that certifies a self-contained reproducibility evidence bundle must wait for the operational items above. Later empirical or cross-city work is explicitly outside this acceptance decision.
 
 ## 7. Handoff after M1
 
@@ -115,4 +123,4 @@ The experimental work is **substantially complete**, but formal acceptance is co
 
 **Parallel Phase 4 work:** M2 should focus on improving hazard representation and uncertainty; M3 should connect exposure/vulnerability to consequences and a meaningful decision objective. Neither should be retroactively claimed as validated in M1.
 
-**What to test next:** Complete the short closure checklist, freeze the M1 documentation and evidence bundle, and proceed to HAM/DON feature-portability design without reopening the Rotterdam synthetic experiment grid.
+**What to test next:** Verify source/output manifest digests, archive the generated evidence and record a durable archive reference; then issue the reproducibility-frozen Git tag. In parallel, design the Hamburg/Donostia terrain-feature portability checkpoint without reopening the Rotterdam synthetic experiment grid.
