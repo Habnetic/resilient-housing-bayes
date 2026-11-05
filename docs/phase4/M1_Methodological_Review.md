@@ -1,15 +1,15 @@
 # Habnetic | Phase 4 M1: Methodological Review
 
-**Version:** 0.1.0, 5 November 2026<br>
-**Status:** Evidence synthesis and decision memo, *draft for repository verification*. M1-A through M1-D2 are exploratory synthetic experiments; this review does not certify empirical flood-risk validity or close all M1 work.<br>
+**Version:** 0.2.0, 5 November 2026<br>
+**Status:** Evidence synthesis updated after completed M1-E targeted four-chain refits. Three flagged traces reviewed; six boundary traces still await individual visual sign-off. M1-F and archival QA remain pending. This review does not certify empirical flood-risk validity or close all M1 work.<br>
 **Study area:** Rotterdam (RTM).<br>
 **Scientific baseline:** Phase 3/M0, commit `5e19254`, tag `phase3-code-freeze-20261022`.<br>
-**Code references independently recorded in experiment history:** M1-C implementation `e920f8c`, M1-C results/summary `e8d0561`, M1-D1 implementation `047d763`, M1-D1 results `133d7a7`. Verify the M1-D2 implementation/results commit IDs locally before changing this document's status.
+**Code references recorded in experiment history:** M1-C implementation `e920f8c`, M1-C results `e8d0561`, M1-D1 implementation `047d763`, M1-D1 results `133d7a7`, M1-D2 implementation `4ed5199`, M1-D2 results `e9f9f63`. The M1-E implementation/results commit remains to be recorded upon repository commit.<br>
 **Evidence class:** Measured terrain covariates, **synthetic Bernoulli outcomes**, posterior inference and oracle-based decisions. The two evidence types must never be conflated.
 
 ## Executive assessment
 
-**Decision:** Accept M1-A/B/C/D1/D2 as a coherent *exploratory, controlled synthetic-methods programme*. Do **not** classify M1 as an empirically validated flood-risk model, declare any prior universally optimal, or transfer its decision-accuracy claims to another city. Preserve the frozen experiments and move to a short, pre-specified validation programme rather than building an increasingly elaborate model immediately.
+**Decision:** Accept M1-A/B/C/D1/D2 as a coherent *exploratory, controlled synthetic-methods programme*, and the M1-E targeted computational confirmations as numerically successful. The isolated M1-D2 apparent P0/P1/P2 decision swap is **not reproduced** under longer MCMC sampling and must not be advertised as established prior sensitivity. Do **not** classify M1 as an empirically validated flood-risk model. Preserve original results and move to a narrow, pre-specified M1-F population robustness study.
 
 The strongest result is conditional and defensible: **when an additional terrain-associated effect is deliberately injected into the synthetic outcome generator, a model containing that variable generally yields better oracle-relative top-10 selections than a model omitting it, on the fixed test population.** The associated benefits persist across five realizations of the synthetic outcomes per effect. Changing priors can alter posterior coefficients and individual decisions without producing a monotone improvement in decision regret. More plausible intercept priors repair much of the original prior-predictive implausibility, while most fitted decisions remain unchanged.
 
@@ -120,14 +120,23 @@ The full M1-D2 study completed **45 new B1 fits**, reused **15 P0 fits**, and co
 
 The only increased P1/P2 regret occurred at `gamma=-0.4`, seed **101**: one changed top-10 asset and **+0.020406** case-level synthetic regret; four other seeds tied P0. Differences in held-out log predictive density, Brier and RMSE were small in the reported units. This boundary event could reflect prior sensitivity, MCMC variation or both, so the result is **not** evidence that informative intercept priors are harmful.
 
+### 3.4 M1-E: targeted computational confirmation (post hoc, 5 November 2026)
+
+The reference audit reproduced **three distinct** earlier numerical warnings: M1-C B1 (`gamma=-0.8`, seed 101, tail ESS 394), M1-C B0 (`gamma=-0.8`, seed 404, R-hat 1.02), and M1-D2 P2 (`gamma=-0.8`, seed 505, tail ESS 373). The targeted four-chain refits (1,000 tune + 1,000 retained draws/chain) completed **9/9 fits** with **zero diagnostic flags and zero divergences**; minimum bulk ESS was **2,394**, and minimum tail ESS was **2,180**.
+
+At the original `gamma=-0.4`, seed 101 decision boundary, two independent refits of each of P0/P1/P2 yielded **the same top-10 selection in all six fits**, with regret **0.020406**. The new P0 differs from original P0 by one selected asset; the new P1/P2 agree with their original selections. Thus the one-asset P1/P2-versus-P0 swap reported in M1-D2 was **not reproducible** under the longer sampler configuration, making the earlier attribution to intercept-prior choice uncertain. The original M1-D2 result remains an authentic exploratory *numerical observation*, not a verified prior effect.
+
+Three previously flagged trace plots were manually inspected and looked well mixed without obvious drift or trapping; the **six boundary trace plots have not yet been individually documented as reviewed**. This is a finite-sampling confirmation at fixed data, not an alternative population or geographical test. See `docs/phase4/M1_E_Results.md` and `outputs/phase4/RTM/m1e/full_summary/`.
+
 ## 4. Cross-cutting scientific findings
 
-### 4.1 Distinguish four kinds of evidence
+### 4.1 Distinguish five kinds of evidence
 
 1. **Internal decision uncertainty:** posterior `P(i in Top-k | data, model, prior)`, with chosen capacity and candidate universe.
 2. **Model specification sensitivity:** changes when relevant predictors or likelihood assumptions change (B0 versus B1).
 3. **Prior sensitivity:** changes under alternate prior distributions within otherwise fixed B1 (D1/D2).
-4. **Decision quality:** expected selection regret against an *available synthetic oracle*, separate from fit quality, parameter bias or predictive scores.
+4. **Computational sensitivity:** a selected-set change caused or amplified by finite posterior sampling, numerical approximation or near-ties. Check independent chains and reruns before attributing a one-asset swap to the prior.
+5. **Decision quality:** expected selection regret against an *available synthetic oracle*, separate from fit quality, parameter bias or predictive scores.
 
 These quantities answer different questions. Posterior certainty conditional on a model is **not** evidence that the model is correctly specified. Lower parameter bias does **not** imply lower top-*k* regret. Better prior predictive plausibility does **not** guarantee a different or better posterior decision.
 
@@ -146,6 +155,8 @@ These quantities answer different questions. Posterior certainty conditional on 
 | M1-D1 | `gamma=-0.8`, seed `101`, SD `0.50` | Same **reused** B1 tail ESS 394 | Do not count as a distinct new failure |
 | M1-D2 | `gamma=-0.8`, seed `101`, P0 | Same **reused** B1 tail ESS 394 | Do not count as independent evidence |
 | M1-D2 | `gamma=-0.8`, seed `505`, P2 | Tail ESS **373** (<400), new fit | Inspect trace; targeted longer-chain repeat |
+
+**M1-E update:** All three distinct flagged cases were refitted with four chains and longer runs; their new diagnostics pass the registered thresholds (9/9 M1-E refits pass; 0 divergences). This **does not retroactively change the original M1-C/D2 diagnostics**; it supplies a separate targeted confirmation. Three flagged traces have been manually reviewed; six boundary traces still require explicit individual visual checks. See section 3.4 and `M1_E_Results.md`.
 
 These are warnings rather than demonstrated model failure. Flag counts across experiments **must not be added together** as though reused fits were independent. Reported M1-C fits had no divergences; for new runs, verify fit-level divergence data before a blanket statement. Most experiments use **two chains with 500 retained draws each**: adequate for exploratory prototyping but below the planned confirmatory standard of at least four chains and longer sampling. Differences of one selected building warrant particular caution when posterior probabilities are close at the decision boundary.
 
@@ -173,17 +184,19 @@ No inference here directly quantifies **hazard → vulnerability → impact → 
 
 ### Decision M1-REV-01: Keep the synthetic evidence, narrow the claim
 
-**Accepted claim:** On the fixed RTM synthetic setup, inclusion of an intentionally causal-generative terrain term increases oracle-relative top-10 selection quality for negative injected terrain effects; prior changes can affect coefficients, posterior selection uncertainty and occasional top-10 membership.
+**Accepted claim:** On the fixed RTM synthetic setup, inclusion of an intentionally causal-generative terrain term increases oracle-relative top-10 selection quality for negative injected terrain effects; prior changes can affect coefficients and posterior selection uncertainty, but the isolated M1-D2 intercept-prior top-10 difference was **not reproduced** in M1-E and should not be classified as established.
 
 **Rejected claims:** `T50` has a verified physical flood effect; the posterior predicts real flood damage; a prior or model is optimal across deployment contexts; 5 repeated outcomes imply geographical robustness; stable posterior inclusion probabilities certify model validity.
 
-**Release classification:** M1-A/B/C/D are **exploratory synthetic evidence**, not confirmed or empirical risk validation. Do not replace or rewrite frozen experiment outputs to make the conclusions stronger.
+**Release classification:** M1-A/B/C/D are **exploratory synthetic evidence**; M1-E supplies **targeted computational confirmation** only, not empirical risk validation. Do not replace or rewrite frozen experiment outputs to make the conclusions stronger.
 
-### Priority 1: Targeted computational confirmation, not another full grid
+### Priority 1: M1-E computational confirmation completed; finish manual and provenance QA
 
-- Inspect saved traces and fit-level diagnostics for the **three distinct flagged fits** above (M1-C B1/seed101; M1-C B0/seed404; M1-D2 P2/seed505 at `gamma=-0.8`). Refit only if needed using **4 chains**, at least **1,000 post-tuning draws per chain**, and enough tuning for stable diagnostics.
-- Recheck the **M1-D2 `gamma=-0.4`, seed101 P0/P1/P2** top-10 boundary with matched higher-quality sampler settings. Determine whether the *same asset swap* is reproducible and report inclusion probability and regret changes with their Monte Carlo sensitivity.
-- Acceptance gate: `R-hat <= 1.01`, reasonable bulk/tail ESS, no unexplained divergences, trace review, stable key decisions under repeated sampling. A flagged result is not automatically rejected, but must be explicitly qualified.
+- **Completed:** Three unique flagged models re-run with four chains and longer inference, and two independent P0/P1/P2 boundary repetitions; 9/9 new refits have no numerical warnings or divergences.
+- **Completed:** The originally reported M1-D2 seed-101 intercept-prior boundary swap was not reproduced. All six new P0/P1/P2 fits select the same top-10. The original P0 fit differed by one asset from the confirmed selection.
+- **Completed:** Three originally flagged trace plots visually inspected with no obvious convergence pathology.
+- **Pending close-out:** Visual inspection of **six boundary trace plots**, direct verification of stored asset IDs at the original/confirmed boundary, and external retention of the M1-E source/output manifests and hashes.
+- **Decision:** Do not treat the isolated two-chain M1-D2 swap as a confirmed prior effect. Stop adding sampler repeats unless a remaining QA check reveals a concrete problem.
 
 ### Priority 2: Independent population and decision sensitivity
 
@@ -214,6 +227,8 @@ Identify an observed outcome and target estimand, e.g., independently documented
 | `docs/phase4/M1_D2_Experimental_Protocol.md`, `M1_D2_Results.md` | D2 intercept-prior design and results | `python -m rhb.pipelines.summarize_m1d2` |
 | `outputs/phase4/RTM/m1d2/prior_predictive/` | Joint-prior rate audit, predictor scales, hashes | `python -m rhb.experiments.m1d2_prior_predictive` |
 | `outputs/phase4/RTM/m1d2/full/summary/` | D2 recalculable aggregates and flags | Depends on preserved M1-C and D2 fit artifacts |
+| `docs/phase4/M1_E_Experimental_Protocol.md`, `M1_E_Results.md` | Targeted 4-chain confirmation design and revised boundary interpretation | `python -m rhb.pipelines.summarize_m1e` |
+| `outputs/phase4/RTM/m1e/full_summary/`, `full_manifest.json` | Nine fit diagnostics, seven boundary comparisons, result hashes | Requires stored NetCDF/decision artifacts and original M1-C/D2 inputs |
 | `../data/runs/rtm_m1_citywide/terrain_features_m1_5m.parquet` | Citywide measured terrain from data repo | See terrain extraction/data-quality report |
 | `outputs/phase3/RTM/phase3_features_scaled.parquet` | Phase 3 predictor snapshot | Version/hash must be retained externally |
 
@@ -226,9 +241,11 @@ python -m rhb.pipelines.summarize_m1c
 python -m rhb.pipelines.summarize_m1d
 python -m rhb.experiments.m1d2_prior_predictive
 python -m rhb.pipelines.summarize_m1d2
+python -m pytest tests/test_m1e.py -q
+python -m rhb.pipelines.summarize_m1e
 ```
 
-**Inputs:** Existing generated M1-C/D1/D2 full-run outputs, manifests and the phase3/terrain Parquet data; Python project environment (3.11.x in this study). **Outputs:** Regenerated summaries under ignored `outputs/phase4/RTM/`. **Reproduction limit:** these commands **do not** independently recreate the entire posterior history or raw raster acquisition; they recompute aggregates/audit from available inputs. For full reproduction, use each experiment's protocol and run command and retain hashes/data sources. Do not re-run citywide raster scripts over existing files without checking their overwrite semantics.
+**Inputs:** Existing generated M1-C/D1/D2/E full-run outputs, manifests and the phase3/terrain Parquet data; Python project environment (3.11.x in this study). **Outputs:** Regenerated summaries under ignored `outputs/phase4/RTM/`. **Reproduction limit:** these commands **do not** independently recreate the entire posterior history or raw raster acquisition; they recompute aggregates/audit from available inputs. For full reproduction, use each experiment's protocol and run command and retain hashes/data sources. Do not re-run citywide raster scripts over existing files without checking their overwrite semantics.
 
 ## 8. Review checklist and decision log
 
@@ -237,12 +254,16 @@ python -m rhb.pipelines.summarize_m1d2
 - [x] Summarize M1-C, D1 and D2 from reported full-run outputs.
 - [x] Record documented MCMC warnings without double counting reused fits.
 - [x] Keep fixed population and idealized loss limitations explicit.
-- [ ] Verify current Git HEAD / whether final M1-D2 results document was committed.
+- [x] Verify M1-D2 implementation/results commits (`4ed5199`, `e9f9f63`).
+- [ ] Record M1-E implementation/results commit after staging the new work.
 - [ ] Confirm input and result-manifest hashes and archive generated bundles outside Git.
-- [ ] Review flagged traces and top-k boundary Monte Carlo robustness.
+- [x] Audit the three flagged reference fits and confirm all nine four-chain reanalysis fits numerically.
+- [x] Visually review the three previously flagged trace plots.
+- [x] Confirm six same-boundary P0/P1/P2 refits have identical selections.
+- [ ] Review the six boundary trace plots individually and verify the swapped original P0 building IDs.
 - [ ] Produce the minimal independent-sample/spatial-block experiment protocol.
 - [ ] Select and justify future real-world outcome evidence and deployment estimand.
 
-**Review decision:** Proceed to targeted diagnostic checks and a *new-population/holdout* experiment; **pause expansion of prior grids** until those tests provide a reason to do so. Keep the Phase 3 freeze, M1-C and M1-D outputs immutable.
+**Review decision:** Treat M1-E's targeted four-chain results as a successful computational confirmation, subject to the remaining visual/provenance QA, and proceed to a *new-population/holdout* M1-F experiment. **Pause expansion of prior grids.** Keep Phase 3, M1-C and M1-D outputs unchanged as historical evidence.
 
-**What to test next:** First, the three unique flagged fits and M1-D2 seed-101 boundary. Then an independently sampled or spatially blocked population. Only afterward reassess the scientific need for additional terrain/hazard complexity or cross-city transfer.
+**What to test next:** Finish reviewing the six boundary traces and preserving M1-E manifests, then test the independent-sample/spatial-block M1-F protocol. After Rotterdam M1 closure, pursue HAM/DON terrain-feature comparability as a separate transfer checkpoint rather than interpreting this fixed-sample MCMC confirmation as geographical generalization.

@@ -1,0 +1,19 @@
+{
+  "experiment": "M1-E",
+  "version": "0.1.0",
+  "city": "RTM",
+  "reference_stage": "full",
+  "mcmc": {"chains": 4, "draws": 1000, "tune": 1000, "target_accept": 0.92, "cores": 2},
+  "diagnostics": {"max_rhat": 1.01, "min_bulk_ess": 400, "min_tail_ess": 400, "max_divergences": 0},
+  "selection_k": 10,
+  "flagged_cases": [
+    {"case_id": "m1c_b1_gneg0p8_s101", "gamma_true": -0.8, "simulation_seed": 101, "model": "B1", "prior_id": "P0", "source": "M1-C", "repeats": 1},
+    {"case_id": "m1c_b0_gneg0p8_s404", "gamma_true": -0.8, "simulation_seed": 404, "model": "B0", "prior_id": "B0", "source": "M1-C", "repeats": 1},
+    {"case_id": "m1d2_p2_gneg0p8_s505", "gamma_true": -0.8, "simulation_seed": 505, "model": "B1", "prior_id": "P2", "source": "M1-D2", "repeats": 1}
+  ],
+  "boundary_cases": [
+    {"case_id": "boundary_p0_gneg0p4_s101", "gamma_true": -0.4, "simulation_seed": 101, "model": "B1", "prior_id": "P0", "source": "M1-C", "repeats": 2},
+    {"case_id": "boundary_p1_gneg0p4_s101", "gamma_true": -0.4, "simulation_seed": 101, "model": "B1", "prior_id": "P1", "source": "M1-D2", "repeats": 2},
+    {"case_id": "boundary_p2_gneg0p4_s101", "gamma_true": -0.4, "simulation_seed": 101, "model": "B1", "prior_id": "P2", "source": "M1-D2", "repeats": 2}
+  ]
+}
