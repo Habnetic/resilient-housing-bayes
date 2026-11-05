@@ -1,0 +1,37 @@
+{
+  "experiment": "M1-F",
+  "version": "0.1",
+  "city": "RTM",
+  "evidence": "synthetic",
+  "features_path": "outputs/phase3/RTM/phase3_features_scaled.parquet",
+  "terrain_path": "../data/runs/rtm_m1_citywide/terrain_features_m1_5m.parquet",
+  "exclude_reference_path": "outputs/phase4/RTM/m1c/m1c_scenarios.parquet",
+  "expected_measured_assets": 220456,
+  "expected_reference_sample_size": 5000,
+  "population_ids": ["pop01", "pop02", "pop03"],
+  "population_seed": 20261106,
+  "sample_size": 5000,
+  "train_size": 4000,
+  "test_size": 1000,
+  "split_seed": 20261107,
+  "gamma_true_values": [0.0, -0.8],
+  "simulation_seeds": [101, 202],
+  "outcome_seed_prefix": "M1-F-outcome-v0.1",
+  "generator_alpha": -3.0,
+  "generator_beta_E": 1.0,
+  "generator_beta_H": 1.0,
+  "terrain_transform_scale_m": 0.5,
+  "selection_share": 0.01,
+  "gamma_prior_sigma": 0.5,
+  "mcmc": {
+    "chains": 2,
+    "draws": 500,
+    "tune": 500,
+    "target_accept": 0.9
+  },
+  "diagnostic_limits": {
+    "max_rhat": 1.01,
+    "min_bulk_ess": 400,
+    "min_tail_ess": 400
+  }
+}
