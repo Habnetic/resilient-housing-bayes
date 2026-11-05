@@ -1,0 +1,32 @@
+{
+  "experiment": "M1-C",
+  "version": "0.1",
+  "city": "RTM",
+  "sample_size": 5000,
+  "train_size": 4000,
+  "test_size": 1000,
+  "sample_seed": 20261105,
+  "split_seed": 20261106,
+  "simulation_seeds": [
+    101,
+    202,
+    303,
+    404,
+    505
+  ],
+  "gamma_true_values": [
+    0.0,
+    -0.4,
+    -0.8
+  ],
+  "terrain_transform": "asinh",
+  "terrain_scale_m": 0.5,
+  "gamma_prior_sigma": 0.5,
+  "selection_share": 0.01,
+  "mcmc": {
+    "chains": 2,
+    "draws": 500,
+    "tune": 500,
+    "target_accept": 0.9
+  }
+}
