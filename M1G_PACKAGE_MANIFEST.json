@@ -1,0 +1,48 @@
+{
+  "package": "Habnetic M1-G Cross-City v0.1",
+  "status": "implementation; source audit, scientific runs and tagging pending",
+  "evidence": "synthetic",
+  "tests": "15 passed with synthetic fixtures on Python 3.13; production requires repo Python 3.11",
+  "files": [
+    {
+      "path": "M1G_SETUP_README.md",
+      "sha256": "2937dc6f26298aa56aa58335a1f9ba6d3523071efba4a1969cd5d40d0c5b99c8",
+      "bytes": 1298
+    },
+    {
+      "path": "configs/m1g_cross_city.json",
+      "sha256": "b735b859644ed8f3878fc76ee50ad3b637eefb471b90449103c968ebd532c823",
+      "bytes": 1701
+    },
+    {
+      "path": "docs/phase4/M1_G_Protocol_and_Runbook.md",
+      "sha256": "d5ec317a519e3ea31dbd59e3d373196b796701b3f794915043c282bfd6ea58f6",
+      "bytes": 8261
+    },
+    {
+      "path": "src/rhb/experiments/m1g_cross_city_sampling.py",
+      "sha256": "bd9ea284c225b3f5e61490c401933d2905d15b55b8fedcd9fe1c3fa8fa28e3e5",
+      "bytes": 12039
+    },
+    {
+      "path": "src/rhb/pipelines/archive_m1g.py",
+      "sha256": "4cfe3f7f11523175a933622abf5b449279ea53211b78e7a65d0993cf706e7d40",
+      "bytes": 4325
+    },
+    {
+      "path": "src/rhb/pipelines/run_m1g.py",
+      "sha256": "e71ee2d386ba86c694cbad0f53138933510555b104277c4bc2b4d2bf4fa868e8",
+      "bytes": 8741
+    },
+    {
+      "path": "src/rhb/pipelines/summarize_m1g.py",
+      "sha256": "1ab1a78fdfcda8acdf9e9fe1449297a332f6c77ba28ec3cf22d3d70bb7c4d567",
+      "bytes": 12057
+    },
+    {
+      "path": "tests/test_m1g.py",
+      "sha256": "5e98f5fe19fc5654b3746e676951d04ef8cf1a2d07347a9c1a5657db383fa2f5",
+      "bytes": 8792
+    }
+  ]
+}

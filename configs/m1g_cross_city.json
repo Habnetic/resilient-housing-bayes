@@ -1,0 +1,44 @@
+{
+  "experiment": "M1-G",
+  "version": "0.1.0",
+  "evidence": "synthetic",
+  "description": "Bounded geographical portability screen. Refit frozen M1-C B0/B1 independently in Hamburg and Donostia with paired synthetic outcomes. Not predictive cross-city transfer.",
+  "cities": {
+    "HAM": {
+      "features_path": "outputs/phase3/HAM/phase3_features_scaled.parquet",
+      "terrain_batch_dir": "../data/runs/ham_m1_citywide/terrain_batches",
+      "expected_buildings": 341530,
+      "expected_terrain_files": 342,
+      "terrain_manifest": "../data/runs/ham_m1_citywide/terrain_batches/extraction_run_manifest.json",
+      "data_git_commit": "6da856999b6d0cc973cb5ab6af21fc8843b66f35"
+    },
+    "DON": {
+      "features_path": "outputs/phase3/DON/phase3_features_scaled.parquet",
+      "terrain_path": "../data/runs/don_m1_citywide/terrain_features_m1_5m.parquet",
+      "expected_buildings": 7755,
+      "data_git_commit": null
+    }
+  },
+  "population_ids": ["city01"],
+  "population_seed": 20261114,
+  "sample_size": 5000,
+  "train_size": 4000,
+  "test_size": 1000,
+  "split_seed": 20261115,
+  "gamma_true_values": [0.0, -0.8],
+  "simulation_seeds": [101, 202],
+  "outcome_seed_prefix": "M1-G-outcome-v0.1",
+  "generator_alpha": -3.0,
+  "generator_beta_E": 1.0,
+  "generator_beta_H": 1.0,
+  "terrain_transform_scale_m": 0.5,
+  "selection_share": 0.01,
+  "gamma_prior_sigma": 0.5,
+  "mcmc": {"chains": 2, "draws": 500, "tune": 500, "target_accept": 0.9},
+  "diagnostic_limits": {"max_rhat": 1.01, "min_bulk_ess": 400, "min_tail_ess": 400},
+  "frozen_reference": {
+    "rtm_m1_tag": "phase4-m1-complete-v1.0",
+    "rtm_m1_commit": "0db9629",
+    "phase3_tag": "phase3-code-freeze-20261022"
+  }
+}
