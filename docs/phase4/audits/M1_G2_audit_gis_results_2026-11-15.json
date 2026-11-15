@@ -1,0 +1,219 @@
+{
+  "audit_version": "0.1.0",
+  "timestamp_utc": "2026-11-15T18:06:12.652724+00:00",
+  "scope": "GIS/source audit of frozen synthetic experiment; no physical flood-risk validation",
+  "m1g2_config_sha256": "068b3a5d12b5e2bd410ce6a092cfba520901e2892bedbfa2c71e6b9eeff405c4",
+  "cities": {
+    "DON": {
+      "n_eligible": 7755,
+      "n_phase3": 7755,
+      "terrain_profile": {
+        "city": "DON",
+        "n": 7755,
+        "min_m": -23.459007263183594,
+        "p0_1_m": -17.19652237701416,
+        "p1_m": -11.431300430297851,
+        "median_m": 0.1685028076171875,
+        "p99_m": 13.576938705444341,
+        "p99_9_m": 25.19135745239259,
+        "max_m": 43.26949977874756,
+        "n_below_minus20_m": 4,
+        "n_above_plus20_m": 22,
+        "definition": "Derived relative terrain; not absolute height above sea level"
+      },
+      "extreme_rows_exported": 100,
+      "extreme_above_20_abs_m": 26,
+      "geometry": {
+        "status": "GEOMETRY_CHECKED_REQUIRES_HUMAN_GIS_REVIEW",
+        "path": "C:\\Users\\C.Price\\Habnetic\\data\\processed\\DON\\derived\\buildings_don.gpkg",
+        "n_geometry_rows": 7755,
+        "n_matched": 7755,
+        "n_missing_eligible_geometries": 0,
+        "n_invalid_or_empty_eligible_geometries": 0,
+        "crs": "EPSG:25830",
+        "crs_is_projected": true,
+        "bounds_source_units": [
+          574451.9824591005,
+          4786031.960494277,
+          589489.4171604016,
+          4798537.86387985
+        ],
+        "n_geometries_for_rtm_excluded": null,
+        "extremes_geojson": "DON_T50_extremes_review.geojson"
+      },
+      "original_dem": {
+        "status": "RASTER_METADATA_READ_NOT_VERTICAL_DATUM_VERIFIED",
+        "path": "C:\\Users\\C.Price\\Habnetic\\data\\processed\\DON\\derived\\mdt05_don_5m_mosaic.tif",
+        "crs": "EPSG:25830",
+        "shape": [
+          2543,
+          3049
+        ],
+        "bounds": [
+          574347.5,
+          4785927.5,
+          589592.5,
+          4798642.5
+        ],
+        "resolution": [
+          5.0,
+          5.0
+        ],
+        "nodata": -32767.0,
+        "units": [
+          null
+        ],
+        "tags": {
+          "attribution": "Obra derivada de MDT05-cob1 2008-2015 CC-BY 4.0 scne.es",
+          "operations": "aligned grid, AOI crop, first-valid merge; no interpolation",
+          "product": "MDT05 first coverage",
+          "provider": "IGN / CNIG",
+          "source_sheets": "0064 first, 0040 second",
+          "AREA_OR_POINT": "Area"
+        },
+        "warning": "Horizontal CRS/height units do not establish vertical datum or T50 computation correctness"
+      }
+    },
+    "RTM": {
+      "n_eligible": 220456,
+      "n_phase3": 221324,
+      "terrain_profile": {
+        "city": "RTM",
+        "n": 220456,
+        "min_m": -11.229117393493652,
+        "p0_1_m": -2.307275404334068,
+        "p1_m": -0.8415830373764038,
+        "median_m": 0.016618281602859497,
+        "p99_m": 1.0897909581661234,
+        "p99_9_m": 2.649457477331226,
+        "max_m": 16.0828218460083,
+        "n_below_minus20_m": 0,
+        "n_above_plus20_m": 0,
+        "definition": "Derived relative terrain; not absolute height above sea level"
+      },
+      "n_excluded": 868,
+      "excluded_export_columns": [
+        "bldg_id",
+        "dist_to_water_m",
+        "water_len_density_250m",
+        "water_len_density_500m",
+        "water_len_density_1000m",
+        "H_pluvial_v1_mm",
+        "dist_to_water_m_z",
+        "water_len_density_250m_z",
+        "water_len_density_500m_z",
+        "water_len_density_1000m_z",
+        "H_pluvial_v1_mm_z",
+        "E_hat_v0",
+        "H_pluvial_v1_rel",
+        "H_pluvial_v1_logrel",
+        "p_damage_true",
+        "Y_damage"
+      ],
+      "original_terrain_table": {
+        "path": "C:\\Users\\C.Price\\Habnetic\\data\\runs\\rtm_m1_citywide\\terrain_features_m1_5m.parquet",
+        "columns": [
+          "bldg_id",
+          "local_z_50",
+          "neighbourhood_z_50",
+          "neighbourhood_z_25",
+          "T50",
+          "T25",
+          "local_valid_pixels",
+          "local_total_pixels",
+          "local_coverage",
+          "neighbourhood_valid_pixels",
+          "neighbourhood_total_pixels",
+          "neighbourhood_coverage",
+          "terrain_measured"
+        ],
+        "sha256": "242045b495f547ddaa56f9e130415841831ca85f89de584ff44b3038d0c34711"
+      },
+      "geometry": {
+        "status": "GEOMETRY_CHECKED_REQUIRES_HUMAN_GIS_REVIEW",
+        "path": "C:\\Users\\C.Price\\Habnetic\\data\\processed\\RTM\\normalized\\buildings.gpkg",
+        "n_geometry_rows": 1909413,
+        "n_matched": 220456,
+        "n_missing_eligible_geometries": 0,
+        "n_invalid_or_empty_eligible_geometries": 0,
+        "crs": "EPSG:28992",
+        "crs_is_projected": true,
+        "bounds_source_units": [
+          48057.26279941322,
+          408247.08386393695,
+          130426.69388731895,
+          482097.9783185044
+        ],
+        "n_geometries_for_rtm_excluded": 868,
+        "excluded_geojson": "RTM_excluded_buildings_review.geojson"
+      },
+      "original_dem": {
+        "status": "PENDING_ORIGINAL_DEM_OR_SOURCE_METADATA"
+      }
+    },
+    "HAM": {
+      "n_eligible": 341530,
+      "n_phase3": 341530,
+      "terrain_profile": {
+        "city": "HAM",
+        "n": 341530,
+        "min_m": -12.974800109863281,
+        "p0_1_m": -5.8727092399597165,
+        "p1_m": -1.840600414276123,
+        "median_m": 0.042598724365234375,
+        "p99_m": 2.394627304077161,
+        "p99_9_m": 5.767365220546746,
+        "max_m": 19.692405700683594,
+        "n_below_minus20_m": 0,
+        "n_above_plus20_m": 0,
+        "definition": "Derived relative terrain; not absolute height above sea level"
+      },
+      "geometry": {
+        "status": "GEOMETRY_CHECKED_REQUIRES_HUMAN_GIS_REVIEW",
+        "path": "C:\\Users\\C.Price\\Habnetic\\data\\processed\\HAM\\derived\\buildings_ham.gpkg",
+        "n_geometry_rows": 341530,
+        "n_matched": 341530,
+        "n_missing_eligible_geometries": 0,
+        "n_invalid_or_empty_eligible_geometries": 0,
+        "crs": "EPSG:25832",
+        "crs_is_projected": true,
+        "bounds_source_units": [
+          463412.7949355808,
+          5917214.5124804815,
+          587497.8459476471,
+          5979463.877649737
+        ],
+        "n_geometries_for_rtm_excluded": null
+      },
+      "original_dem": {
+        "status": "RASTER_METADATA_READ_NOT_VERTICAL_DATUM_VERIFIED",
+        "path": "C:\\Users\\C.Price\\Habnetic\\data\\processed\\HAM\\derived\\ham_dgm5_mainland_mosaic.tif",
+        "crs": "EPSG:25832",
+        "shape": [
+          8000,
+          8200
+        ],
+        "bounds": [
+          548000.0,
+          5916000.0,
+          589000.0,
+          5956000.0
+        ],
+        "resolution": [
+          5.0,
+          5.0
+        ],
+        "nodata": -9999.0,
+        "units": [
+          null
+        ],
+        "tags": {
+          "AREA_OR_POINT": "Area"
+        },
+        "warning": "Horizontal CRS/height units do not establish vertical datum or T50 computation correctness"
+      }
+    }
+  },
+  "interpretation_warning": "T50 is relative terrain, not DEM elevation; source DEM provenance and vertical datum require manual verification",
+  "status": "AUTOMATED_TABLES_PASS_GIS_REVIEW_REQUIRED"
+}

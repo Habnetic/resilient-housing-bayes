@@ -1,0 +1,25 @@
+{
+  "experiment": "M1-G2",
+  "version": "0.1.0",
+  "evidence": "synthetic",
+  "description": "Matched full-eligible-population B0/B1 fits; citywide posterior decision scoring; not observed flood risk",
+  "cities": {
+    "RTM": {"expected_phase3": 221324, "expected_eligible": 220456, "features_path": "outputs/phase3/RTM/phase3_features_scaled.parquet", "terrain_path": "../data/runs/rtm_m1_citywide/terrain_features_m1_5m.parquet"},
+    "HAM": {"expected_phase3": 341530, "expected_eligible": 341530},
+    "DON": {"expected_phase3": 7755, "expected_eligible": 7755}
+  },
+  "terrain_scale_m": 0.5,
+  "alpha_generating": -3.0,
+  "beta_E_generating": 1.0,
+  "beta_H_generating": 1.0,
+  "gamma_scenarios": [0.0, -0.8],
+  "outcome_seed": 20261116,
+  "selection_share": 0.01,
+  "baseline_prior_sigma": 2.5,
+  "terrain_prior_sigma": 0.5,
+  "mcmc": {"chains": 4, "draws": 1000, "tune": 1000, "target_accept": 0.9, "cores": 2},
+  "scoring": {"draws_per_chain": 250},
+  "diagnostics": {"rhat_max": 1.01, "ess_bulk_min": 400, "ess_tail_min": 400, "divergences_max": 0},
+  "frozen_rtm_reference": "phase4-m1-complete-v1.0",
+  "development_reference": "6f9f86d1b4a1dfcb6922f7406ae3cc57805b76c3"
+}
